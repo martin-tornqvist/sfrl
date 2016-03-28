@@ -62,7 +62,10 @@ endif ()
 file (READ ${PROJECT_SOURCE_DIR}/source.txt SRC_FILES)
 string (REPLACE "\n" ";" SRC_FILES ${SRC_FILES})
 
-include_directories (${PROJECT_SOURCE_DIR}/include)
+include_directories (
+  ${PROJECT_SOURCE_DIR}/include
+  ${PROJECT_SOURCE_DIR}/rl_utils/include
+  )
 
 # ------------------------------------------------------------------------------
 # Executable
