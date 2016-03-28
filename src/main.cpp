@@ -1,132 +1,122 @@
-// TODO: There is probably a better way to do this(?)
-#[cfg(unix)]
-pub mod ncurses;
-#[cfg(unix)]
-pub use ncurses::io;
+#include "io.hpp"
 
-mod utils;
-mod mon;
-mod map;
-mod render;
+#include "map.hpp"
+#include "mon.hpp"
+#include "render.hpp"
 
-use utils::*;
-use mon::*;
-use map::*;
-use render::*;
-
-use std::cmp;
-
-fn main()
+#if defined(_WIN32) && defined(SDL_MODE)
+#undef main
+#endif
+int main(int argc, char* argv[])
 {
-    println!("main()");
+    (void)argc;
+    (void)argv;
 
     io::init();
 
-    let mut game_map = Map::new();
+    Map map;
 
-    for x in 1..MAP_W - 1 {
-        if x % 2 == 0 {
-            game_map.ter[x][0] = Ter::Floor;
+    for (int x = 1; x < MAP_W - 1; ++x)
+    {
+        for (int y = 1; y < MAP_H - 1; ++y)
+        {
+            map.ter[x][y] = Ter::floor;
         }
     }
 
-    for x in 1..MAP_W - 1 {
-        for y in 1..MAP_H - 1 {
-            game_map.ter[x][y] = Ter::Floor;
-        }
-    }
+    map.ter[18][3] = Ter::wall;
 
-    game_map.ter[18][3] = Ter::Wall;
+    Mon player = Mon(P(2, 4));
 
-    let player = Mon::new(&P::new_xy(2, 4));
+    map.monsters.push_back(player);
 
-    game_map.monsters.push(player);
-
-    let mut vp = R::new();
+    R vp;
 
     io::clear_scr();
 
     // ------------------------------------------------------------------------
     // Game loop
     // ------------------------------------------------------------------------
-    loop {
-        let scr_dim = io::scr_dim();
+    while (true)
+    {
+        P scr_dim(io::scr_dim());
 
-        if scr_dim.x < 80 || scr_dim.y < 24 {
+        if (scr_dim.x < 80 || scr_dim.y < 24)
+        {
             io::clear_scr();
 
-            io::draw_text(&P { x: 0, y: 0 },
-                          &format!("Game window too small!"),
-                          io::Clr::Red,
-                          io::Clr::Black,
-                          io::FontWgt::Bold);
+            io::draw_text(P(0, 0),
+                          "Game window too small!",
+                          clr_red);
 
-        } else {
-            let mut map_window_dim = scr_dim;
+        }
+        else //Window is big enough
+        {
+            P map_window_dim = scr_dim;
 
-            map_window_dim.x = cmp::min(map_window_dim.x, (MAP_W as i32));
-            map_window_dim.y = cmp::min(map_window_dim.y, (MAP_H as i32));
+            map_window_dim.x = std::min(map_window_dim.x, MAP_W);
+            map_window_dim.y = std::min(map_window_dim.y, MAP_H);
 
-            let player_p = *game_map.monsters[0].p();
+            const int VP_TRIGGER_DIST = 3;
 
-            let vp_trigger_dist = 3;
+            render::vp_update(player.p(), map_window_dim, VP_TRIGGER_DIST, vp);
 
-            vp_update(&player_p, &map_window_dim, vp_trigger_dist, &mut vp);
-
-            draw_map(&game_map, &vp);
+            render::draw_map(map, vp);
         }
 
-        let player = &mut game_map.monsters[0];
+        Input inp = io::get_input();
 
-        let inp = io::get_input();
-
-        match inp {
-            ('q', 0) => {
-                break;
-            }
-
-            ('6', 0) | ('\n', io::KEY_RIGHT) => {
-                player.mv(Dir::Right);
-            }
-
-            ('4', 0) | ('\n', io::KEY_LEFT) => {
-                player.mv(Dir::Left);
-            }
-
-            ('2', 0) | ('\n', io::KEY_DOWN) => {
-                player.mv(Dir::Down);
-            }
-
-            ('8', 0) | ('\n', io::KEY_UP) => {
-                player.mv(Dir::Up);
-            }
-
-            ('3', 0) => {
-                player.mv(Dir::DownRight);
-            }
-
-            ('9', 0) => {
-                player.mv(Dir::UpRight);
-            }
-
-            ('1', 0) => {
-                player.mv(Dir::DownLeft);
-            }
-
-            ('7', 0) => {
-                player.mv(Dir::UpLeft);
-            }
-
-            _ => {}
+        if (inp.c == 'q')
+        {
+            break;
         }
+
+//        match inp {
+//            ('q', 0) => {
+//                break;
+//            }
+//
+//            ('6', 0) | ('\n', io::KEY_RIGHT) => {
+//                player.mv(Dir::Right);
+//            }
+//
+//            ('4', 0) | ('\n', io::KEY_LEFT) => {
+//                player.mv(Dir::Left);
+//            }
+//
+//            ('2', 0) | ('\n', io::KEY_DOWN) => {
+//                player.mv(Dir::Down);
+//            }
+//
+//            ('8', 0) | ('\n', io::KEY_UP) => {
+//                player.mv(Dir::Up);
+//            }
+//
+//            ('3', 0) => {
+//                player.mv(Dir::DownRight);
+//            }
+//
+//            ('9', 0) => {
+//                player.mv(Dir::UpRight);
+//            }
+//
+//            ('1', 0) => {
+//                player.mv(Dir::DownLeft);
+//            }
+//
+//            ('7', 0) => {
+//                player.mv(Dir::UpLeft);
+//            }
+//
+//            _ => {}
+//        }
 
         // If screen has been resized, trigger a viewport update next iteration
-        if io::scr_dim() != scr_dim {
-            vp = R::new();
+        if (io::scr_dim() != scr_dim)
+        {
+            vp = R();
         }
     }
 
     io::cleanup();
-
-    println!("main() [DONE]");
 }

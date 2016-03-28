@@ -1,6 +1,5 @@
 ./include/render.hpp
-./include/utils.hpp
-./include/ncurses/io.hpp
+./include/sdl/io.hpp
 ./include/map.hpp
 ./include/mon.hpp
 ./rl_utils/include/rl_utils.hpp
@@ -8,8 +7,7 @@
 
 ./rl_utils/src/rl_utils.cpp
 ./src/mon.cpp
-./src/ncurses/io.cpp
+./src/sdl/io.cpp
 ./src/map.cpp
 ./src/main.cpp
 ./src/render.cpp
-./src/utils.cpp

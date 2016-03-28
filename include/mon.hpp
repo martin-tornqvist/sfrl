@@ -1,16 +1,19 @@
-use utils::*;
+#ifndef MON_HPP
+#define MON_HPP
+
+#include "rl_utils.hpp"
 
 class Mon
 {
 public:
-    Mon() :
-        p_() {}
-    
+    Mon(const P& p) :
+        p_(p) {}
+
     ~Mon() {}
 
     void mv(const Dir dir);
-    
-    const P& p()
+
+    const P& p() const
     {
         return p_;
     }
@@ -18,3 +21,5 @@ public:
 private:
     P p_;
 };
+
+#endif // MON_HPP

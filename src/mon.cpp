@@ -1,11 +1,8 @@
-use utils::*;
+#include "mon.hpp"
 
+#include "rl_utils.hpp"
 
 void Mon::mv(const Dir dir)
 {
-    const d = P;
-    
-    p_offset(dir, d);
-    
-    p_ = p_ + d;
+    p_ += dir_utils::offset(dir);
 }

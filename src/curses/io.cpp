@@ -11,7 +11,7 @@ namespace
 
 void set_clr_attr(const Clr fg, const Clr bg)
 {
-    const int idx = fg * COLORS + bg;
+    const int idx = (int)fg * COLORS + (int)bg;
 
     const int ncurses_clr_pair = COLOR_PAIR(idx);
 
@@ -38,13 +38,13 @@ void init()
     noecho();
 
     // Hide the cursor
-    curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
+    //curs_set(CURSOR_VISIBILITY::CURSOR_INVISIBLE);
 
     // Use colors
     start_color();
 
     // Init color pairs
-    for (int f = 0; i < COLORS; ++f)
+    for (int f = 0; f < COLORS; ++f)
     {
         for (int b = 0; b < COLORS; ++b)
         {
@@ -74,7 +74,7 @@ P scr_dim()
 {
     P p;
 
-    getmaxyx(stdscr, &p.y, &p.x);
+    getmaxyx(stdscr, p.y, p.x);
 
     return p;
 }
@@ -89,14 +89,14 @@ void draw_char(const P& p,
 
     if (wgt == FontWgt::bold)
     {
-        attron(A_BOLD());
+        attron(A_BOLD);
     }
 
     mvaddch(p.y, p.x, c);
 
     if (wgt == FontWgt::bold)
     {
-        attroff(A_BOLD());
+        attroff(A_BOLD);
     }
 }
 
@@ -110,33 +110,33 @@ void draw_text(const P& p,
 
     if (wgt == FontWgt::bold)
     {
-        attron(A_BOLD());
+        attron(A_BOLD);
     }
 
-    mvprintw(p.y, p.x, text);
+    mvprintw(p.y, p.x, str.c_str());
 
     if (wgt == FontWgt::bold)
     {
-        attroff(A_BOLD());
+        attroff(A_BOLD);
     }
 }
 
 Input get_input()
 {
-    const int ncurses_inp = getch();
-    
+    const int curses_inp = getch();
+
     Input out;
 
-    if (ncurses_inp >= 33 && ncurses_inp <= 126)
+    if (curses_inp >= 33 && curses_inp <= 126)
     {
         // Character (e.g. 'a', or '?')
-        out.c = ncurses_inp;
+        out.c = curses_inp;
     }
     else // Keycode (e.g. "left", or "F1")
     {
-        keycode.c = ncurses_inp;
+        out.keycode = curses_inp;
     }
-    
+
     return out;
 }
 

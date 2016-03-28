@@ -1,15 +1,19 @@
 #ifndef RENDER_HPP
 #define RENDER_HPP
 
+class P;
+class R;
+class Map;
+
 namespace render
 {
 
 void vp_update(const P& p,
                const P& map_window_dim,
                const int trigger_dist,
-               const R& vp);
+               R& vp);
 
-pub fn draw_map(game_map: &Map, vp: &R);
+void draw_map(const Map& map, const R& vp);
 
 } // render
 

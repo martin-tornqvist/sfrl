@@ -1,12 +1,17 @@
 #include "render.hpp"
 
+#include <cassert>
+
+#include "rl_utils.hpp"
+#include "map.hpp"
+
 namespace render
 {
 
 void vp_update(const P& p,
                const P& map_window_dim,
                const int trigger_dist,
-               const R& vp)
+               R& vp)
 {
     // map_window_dim must not be bigger than the map
     assert(map_window_dim.x <= MAP_W);
@@ -19,7 +24,8 @@ void vp_update(const P& p,
     const int u = p.y - vp.p0.y;
 
     // Time to do horizontal adjustment?
-    if (r <= trigger_dist) || (l <= trigger_dist) {
+    if (r <= trigger_dist || l <= trigger_dist)
+    {
         // NOTE: If window width is even (i.e. no center cell), we lean left
         vp.p0.x = p.x - (map_window_dim.x / 2);
 
@@ -28,7 +34,8 @@ void vp_update(const P& p,
     }
 
     // Time to do vertical adjustment?
-    if (d <= trigger_dist) || (u <= trigger_dist) {
+    if (d <= trigger_dist || u <= trigger_dist)
+    {
         // NOTE: If window height is even (i.e. no center cell), we lean up
         vp.p0.y = p.y - (map_window_dim.y / 2);
 
@@ -46,11 +53,11 @@ void vp_update(const P& p,
     // The viewport should be inside the map
     assert(vp.p0.x >= 0);
     assert(vp.p0.y >= 0);
-    assert(vp.p1.x < (MAP_W as i32));
-    assert(vp.p1.y < (MAP_H as i32));
+    assert(vp.p1.x < MAP_W);
+    assert(vp.p1.y < MAP_H);
 }
 
-pub fn draw_map(game_map: &Map, vp: &R)
+void draw_map(const Map& map, const R& vp)
 {
     for (int x = vp.p0.x; x <= vp.p1.x; ++x)
     {
@@ -58,46 +65,45 @@ pub fn draw_map(game_map: &Map, vp: &R)
         {
             const P scr_p = P(x, y) - vp.p0;
 
-            char ch = 0;
-            io::Clr fg = io::Clr::white;
-            io::Clr bg = io::Clr::black;
+            char ch     = 0;
+            Clr fg      = clr_white;
+            Clr bg      = clr_black;
 
-            const Ter ter = game_map.ter[x][y];
+            const Ter ter = map.ter[x][y];
 
             // TODO: This should not be decided here
-            switch ter {
-                case Ter::floor:
-                    ch = '.';
-                    fg = io::Clr::White;
-                    bg = io::Clr::Black;
-                    break;
+            switch (ter)
+            {
+            case Ter::floor:
+                ch = '.';
+                fg = clr_white;
+                bg = clr_black;
+                break;
 
-                case Ter::wall:
-                    ch = '#';
-                    fg = io::Clr::White;
-                    bg = io::Clr::Black;
-                    break;
-                }
+            case Ter::wall:
+                ch = '#';
+                fg = clr_white;
+                bg = clr_black;
+                break;
+            }
 
-            io::draw_char(&scr_p,
+            io::draw_char(scr_p,
                           ch,
                           fg,
-                          bg,
-                          io::FontWgt::Normal);
+                          bg);
         }
     }
 
     // TODO: Iterate over all monsters
     // TODO: Only draw monsters inside vp
 
-    const P& mon_p    = game_map.monsters[0].p();
-    const P mon_scr_p = mon_p - vp.p0;
+    const P& mon_p      = map.monsters[0].p();
+    const P mon_scr_p   = mon_p - vp.p0;
 
     io::draw_char(mon_scr_p,
                   '@',
-                  io::Clr::White,
-                  io::Clr::Black,
-                  io::FontWgt::Bold);
+                  clr_white,
+                  clr_black);
 
     io::update_scr();
 }
