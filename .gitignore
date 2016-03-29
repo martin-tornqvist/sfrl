@@ -1,8 +1,21 @@
-# Compiled Object files
+# Compiled Object files and generated directories
 *.slo
 *.lo
 *.o
 *.obj
+target/
+obj/
+test/bin
+test/obj
+
+# Backup files
+*~
+#*
+
+# CodeBlocks
+*.layout
+*.layout.orig
+*.depend
 
 # Precompiled Headers
 *.gch

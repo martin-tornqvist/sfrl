@@ -6,8 +6,8 @@
 #include "mon.hpp"
 #include "io.hpp"
 
-const int MAP_W = 256;
-const int MAP_H = 256;
+const int map_w = 256;
+const int map_h = 256;
 
 enum class Ter
 {
@@ -26,7 +26,7 @@ class Map
 public:
     Map();
 
-    Ter ter[MAP_W][MAP_H];
+    Ter ter[map_w][map_h];
     std::vector<Mon> monsters;
 };
 

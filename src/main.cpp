@@ -16,9 +16,9 @@ int main(int argc, char* argv[])
 
     Map map;
 
-    for (int x = 1; x < MAP_W - 1; ++x)
+    for (int x = 1; x < map_w - 1; ++x)
     {
-        for (int y = 1; y < MAP_H - 1; ++y)
+        for (int y = 1; y < map_h - 1; ++y)
         {
             map.ter[x][y] = Ter::floor;
         }
@@ -26,9 +26,11 @@ int main(int argc, char* argv[])
 
     map.ter[18][3] = Ter::wall;
 
-    Mon player = Mon(P(2, 4));
+    {
+        Mon player = Mon(P(2, 4));
 
-    map.monsters.push_back(player);
+        map.monsters.push_back(player);
+    }
 
     R vp;
 
@@ -48,18 +50,20 @@ int main(int argc, char* argv[])
             io::draw_text(P(0, 0),
                           "Game window too small!",
                           clr_red);
-
         }
         else //Window is big enough
         {
             P map_window_dim = scr_dim;
 
-            map_window_dim.x = std::min(map_window_dim.x, MAP_W);
-            map_window_dim.y = std::min(map_window_dim.y, MAP_H);
+            map_window_dim.x = std::min(map_window_dim.x, map_w);
+            map_window_dim.y = std::min(map_window_dim.y, map_h);
 
-            const int VP_TRIGGER_DIST = 3;
+            const int vp_trigger_dist = 3;
 
-            render::vp_update(player.p(), map_window_dim, VP_TRIGGER_DIST, vp);
+            render::vp_update(map.monsters[0].p(),
+                              map_window_dim,
+                              vp_trigger_dist,
+                              vp);
 
             render::draw_map(map, vp);
         }
@@ -72,76 +76,40 @@ int main(int argc, char* argv[])
         }
         else if (inp.c == '1')
         {
-            player.mv(Dir::down_left);
+            map.monsters[0].mv(Dir::down_left);
         }
-        else if (inp.c == '2' || inp.keycode == KEY_DOWN)
+        else if (inp.c == '2' || inp.keycode == key_down)
         {
-            player.mv(Dir::down);
+            map.monsters[0].mv(Dir::down);
         }
         else if (inp.c == '3')
         {
-            player.mv(Dir::down_right);
+            map.monsters[0].mv(Dir::down_right);
         }
-        else if (inp.c == '4' || inp.keycode == KEY_LEFT)
+        else if (inp.c == '4' || inp.keycode == key_left)
         {
-            player.mv(Dir::left);
+            map.monsters[0].mv(Dir::left);
         }
         else if (inp.c == '5' || inp.c == ',')
         {
-            player.mv(Dir::center);
+            map.monsters[0].mv(Dir::center);
         }
-        else if (inp.c == '6' || inp.keycode == KEY_RIGHT)
+        else if (inp.c == '6' || inp.keycode == key_right)
         {
-            player.mv(Dir::right);
+            map.monsters[0].mv(Dir::right);
         }
         else if (inp.c == '7')
         {
-            player.mv(Dir::up_left);
+            map.monsters[0].mv(Dir::up_left);
         }
-        else if (inp.c == '8' || inp.keycode == KEY_UP)
+        else if (inp.c == '8' || inp.keycode == key_up)
         {
-            player.mv(Dir::up);
+            map.monsters[0].mv(Dir::up);
         }
-
-//        match inp {
-//            ('q', 0) => {
-//                break;
-//            }
-//
-//            ('6', 0) | ('\n', io::KEY_RIGHT) => {
-//                player.mv(Dir::Right);
-//            }
-//
-//            ('4', 0) | ('\n', io::KEY_LEFT) => {
-//                player.mv(Dir::Left);
-//            }
-//
-//            ('2', 0) | ('\n', io::KEY_DOWN) => {
-//                player.mv(Dir::Down);
-//            }
-//
-//            ('8', 0) | ('\n', io::KEY_UP) => {
-//                player.mv(Dir::Up);
-//            }
-//
-//            ('3', 0) => {
-//                player.mv(Dir::DownRight);
-//            }
-//
-//            ('9', 0) => {
-//                player.mv(Dir::UpRight);
-//            }
-//
-//            ('1', 0) => {
-//                player.mv(Dir::DownLeft);
-//            }
-//
-//            ('7', 0) => {
-//                player.mv(Dir::UpLeft);
-//            }
-//
-//            _ => {}
-//        }
+        else if (inp.c == '9')
+        {
+            map.monsters[0].mv(Dir::up_right);
+        }
 
         // If screen has been resized, trigger a viewport update next iteration
         if (io::scr_dim() != scr_dim)
@@ -151,4 +119,6 @@ int main(int argc, char* argv[])
     }
 
     io::cleanup();
+
+    return 0;
 }

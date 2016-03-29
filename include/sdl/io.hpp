@@ -47,32 +47,32 @@ const Clr clr_orange            = {255, 128,   0, 0};
 // -----------------------------------------------------------------------------
 // Keyboard key codes
 // -----------------------------------------------------------------------------
-const int KEY_DOWN              = SDLK_DOWN;
-const int KEY_UP                = SDLK_UP;
-const int KEY_LEFT              = SDLK_LEFT;
-const int KEY_RIGHT             = SDLK_RIGHT;
-const int KEY_HOME              = SDLK_HOME;
-const int KEY_BACKSPACE         = SDLK_BACKSPACE;
-const int KEY_F1                = SDLK_F1;
-const int KEY_F2                = SDLK_F2;
-const int KEY_F3                = SDLK_F3;
-const int KEY_F4                = SDLK_F4;
-const int KEY_F5                = SDLK_F5;
-const int KEY_F6                = SDLK_F6;
-const int KEY_F7                = SDLK_F7;
-const int KEY_F8                = SDLK_F8;
-const int KEY_F9                = SDLK_F9;
-const int KEY_F10               = SDLK_F10;
-const int KEY_F11               = SDLK_F11;
-const int KEY_F12               = SDLK_F12;
-const int KEY_F13               = SDLK_F13;
-const int KEY_F14               = SDLK_F14;
-const int KEY_F15               = SDLK_F15;
-const int KEY_DELETE            = SDLK_DELETE;
-const int KEY_NPAGE             = SDLK_PAGEDOWN;
-const int KEY_PPAGE             = SDLK_PAGEUP;
-const int KEY_ENTER             = SDLK_RETURN;
-const int KEY_END               = SDLK_END;
+const int key_down              = SDLK_DOWN;
+const int key_up                = SDLK_UP;
+const int key_left              = SDLK_LEFT;
+const int key_right             = SDLK_RIGHT;
+const int key_home              = SDLK_HOME;
+const int key_backspace         = SDLK_BACKSPACE;
+const int key_f1                = SDLK_F1;
+const int key_f2                = SDLK_F2;
+const int key_f3                = SDLK_F3;
+const int key_f4                = SDLK_F4;
+const int key_f5                = SDLK_F5;
+const int key_f6                = SDLK_F6;
+const int key_f7                = SDLK_F7;
+const int key_f8                = SDLK_F8;
+const int key_f9                = SDLK_F9;
+const int key_f10               = SDLK_F10;
+const int key_f11               = SDLK_F11;
+const int key_f12               = SDLK_F12;
+const int key_f13               = SDLK_F13;
+const int key_f14               = SDLK_F14;
+const int key_f15               = SDLK_F15;
+const int key_delete            = SDLK_DELETE;
+const int key_npage             = SDLK_PAGEDOWN;
+const int key_ppage             = SDLK_PAGEUP;
+const int key_enter             = SDLK_RETURN;
+const int key_end               = SDLK_END;
 
 struct Input
 {
@@ -98,7 +98,7 @@ void clear_scr();
 P scr_dim();
 
 void draw_char(const P& p,
-               const char C,
+               const char c,
                const Clr fg,
                const Clr bg = clr_black);
 

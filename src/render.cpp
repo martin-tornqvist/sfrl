@@ -1,7 +1,5 @@
 #include "render.hpp"
 
-#include <cassert>
-
 #include "rl_utils.hpp"
 #include "map.hpp"
 
@@ -14,8 +12,8 @@ void vp_update(const P& p,
                R& vp)
 {
     // map_window_dim must not be bigger than the map
-    assert(map_window_dim.x <= MAP_W);
-    assert(map_window_dim.y <= MAP_H);
+    ASSERT(map_window_dim.x <= map_w);
+    ASSERT(map_window_dim.y <= map_h);
 
     // Our distances from the viewport edges (right, left, down, up)
     const int r = vp.p1.x - p.x;
@@ -30,7 +28,7 @@ void vp_update(const P& p,
         vp.p0.x = p.x - (map_window_dim.x / 2);
 
         vp.p0.x = std::max(vp.p0.x, 0);
-        vp.p0.x = std::min(vp.p0.x, MAP_W - map_window_dim.x);
+        vp.p0.x = std::min(vp.p0.x, map_w - map_window_dim.x);
     }
 
     // Time to do vertical adjustment?
@@ -40,21 +38,21 @@ void vp_update(const P& p,
         vp.p0.y = p.y - (map_window_dim.y / 2);
 
         vp.p0.y = std::max(vp.p0.y, 0);
-        vp.p0.y = std::min(vp.p0.y, MAP_H - map_window_dim.y);
+        vp.p0.y = std::min(vp.p0.y, map_h - map_window_dim.y);
     }
 
     vp.p1.x = vp.p0.x + map_window_dim.x - 1;
     vp.p1.y = vp.p0.y + map_window_dim.y - 1;
 
     // The viewport should have the same size as the map window
-    assert((vp.p1.x - vp.p0.x + 1) == map_window_dim.x);
-    assert((vp.p1.y - vp.p0.y + 1) == map_window_dim.y);
+    ASSERT((vp.p1.x - vp.p0.x + 1) == map_window_dim.x);
+    ASSERT((vp.p1.y - vp.p0.y + 1) == map_window_dim.y);
 
     // The viewport should be inside the map
-    assert(vp.p0.x >= 0);
-    assert(vp.p0.y >= 0);
-    assert(vp.p1.x < MAP_W);
-    assert(vp.p1.y < MAP_H);
+    ASSERT(vp.p0.x >= 0);
+    ASSERT(vp.p0.y >= 0);
+    ASSERT(vp.p1.x < map_w);
+    ASSERT(vp.p1.y < map_h);
 }
 
 void draw_map(const Map& map, const R& vp)
@@ -130,7 +128,7 @@ void draw_map(const Map& map, const R& vp)
 //         // Verify that viewport does *NOT* change when focus is in center
 //         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
 
-//         assert(vp == vp_before);
+//         ASSERT(vp == vp_before);
 
 //         // Verify that viewport does *NOT* change when focus is almost at trigger
 //         // distance
@@ -139,7 +137,7 @@ void draw_map(const Map& map, const R& vp)
 
 //         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
 
-//         assert(vp == vp_before);
+//         ASSERT(vp == vp_before);
 
 //         // Verify that viewport changes when focus is at trigger distance
 //         vp = vp_before;
@@ -147,7 +145,7 @@ void draw_map(const Map& map, const R& vp)
 
 //         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
 
-//         assert(vp != vp_before);
+//         ASSERT(vp != vp_before);
 
 //         // Verify viewport change when focus is further than trigger distance
 //         vp = vp_before;
@@ -155,6 +153,6 @@ void draw_map(const Map& map, const R& vp)
 
 //         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
 
-//         assert(vp != vp_before);
+//         ASSERT(vp != vp_before);
 //     }
 // }
