@@ -125,6 +125,23 @@ void put_px(const SDL_Surface& srf,
     }
 }
 
+void draw_rectangle_solid(const P& px_pos,
+                          const P& px_dims,
+                          const Clr& clr)
+{
+    SDL_Rect sdl_rect =
+    {
+        (Sint16)px_pos.x,
+        (Sint16)px_pos.y,
+        (Uint16)px_dims.x,
+        (Uint16)px_dims.y
+    };
+
+    SDL_FillRect(scr_srf_,
+                 &sdl_rect,
+                 SDL_MapRGB(scr_srf_->format, clr.r, clr.g, clr.b));
+}
+
 void load_font()
 {
 //    TRACE_FUNC_BEGIN;
@@ -208,9 +225,9 @@ void draw_char_at_px(const char C,
 {
 //    if (DRAW_BG_CLR)
 //    {
-//        const P cell_dims(CELL_W, CELL_H);
-//
-//        draw_rectangle_solid(px_pos, cell_dims, bg_clr);
+    draw_rectangle_solid(px_pos,
+                         P(CELL_W, CELL_H),
+                         bg_clr);
 //    }
 
     put_char_pixels_on_scr(C,
@@ -270,7 +287,9 @@ void init()
         assert(false);
     }
 
-    sdl_renderer_ = SDL_CreateRenderer(sdl_window_, -1, SDL_RENDERER_ACCELERATED);
+    sdl_renderer_ = SDL_CreateRenderer(sdl_window_,
+                                       -1,
+                                       SDL_RENDERER_ACCELERATED);
 
     if (!sdl_renderer_)
     {
@@ -396,7 +415,9 @@ void draw_text(const P& p,
     const size_t    MSG_W       = str.size();
     const int       MSG_PX_W    = MSG_W * CELL_W;
 
-//    draw_rectangle_solid(px_pos, {MSG_PX_W, CELL_PX_H}, bg);
+    draw_rectangle_solid(px_pos,
+                         P(MSG_PX_W, CELL_H),
+                         bg);
 
     const int   MSG_PX_X1           = px_pos.x + MSG_PX_W - 1;
     const bool  MSG_W_FIT_ON_SCR    = MSG_PX_X1 < scr_px_dim.x;

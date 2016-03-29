@@ -70,6 +70,38 @@ int main(int argc, char* argv[])
         {
             break;
         }
+        else if (inp.c == '1')
+        {
+            player.mv(Dir::down_left);
+        }
+        else if (inp.c == '2' || inp.keycode == KEY_DOWN)
+        {
+            player.mv(Dir::down);
+        }
+        else if (inp.c == '3')
+        {
+            player.mv(Dir::down_right);
+        }
+        else if (inp.c == '4' || inp.keycode == KEY_LEFT)
+        {
+            player.mv(Dir::left);
+        }
+        else if (inp.c == '5' || inp.c == ',')
+        {
+            player.mv(Dir::center);
+        }
+        else if (inp.c == '6' || inp.keycode == KEY_RIGHT)
+        {
+            player.mv(Dir::right);
+        }
+        else if (inp.c == '7')
+        {
+            player.mv(Dir::up_left);
+        }
+        else if (inp.c == '8' || inp.keycode == KEY_UP)
+        {
+            player.mv(Dir::up);
+        }
 
 //        match inp {
 //            ('q', 0) => {
