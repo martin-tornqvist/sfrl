@@ -1,9 +1,21 @@
 #ifndef RENDER_HPP
 #define RENDER_HPP
 
+#include "io.hpp"
+
 class P;
 class R;
 class Map;
+
+struct RenderData
+{
+    RenderData() :
+        c   (0),
+        clr (clr_white) {}
+
+    unsigned char c;
+    Clr clr;
+};
 
 namespace render
 {

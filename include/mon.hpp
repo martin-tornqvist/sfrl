@@ -3,6 +3,8 @@
 
 #include "rl_utils.hpp"
 
+class Map;
+
 class Mon
 {
 public:
@@ -11,7 +13,7 @@ public:
 
     ~Mon() {}
 
-    void mv(const Dir dir);
+    void mv(const Dir dir, Map& map);
 
     const P& p() const
     {

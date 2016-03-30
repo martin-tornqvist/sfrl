@@ -6,6 +6,76 @@
 namespace render
 {
 
+namespace
+{
+
+// ASCII codes for box characters
+const unsigned char box_ver                 = 179;
+const unsigned char box_ver_left            = 180;
+const unsigned char box_ver_right           = 195;
+
+const unsigned char box_hor                 = 196;
+const unsigned char box_hor_up              = 193;
+const unsigned char box_hor_down            = 194;
+
+const unsigned char box_hor_ver             = 197;
+
+const unsigned char box_up_left_corner      = 218;
+const unsigned char box_lower_left_corner   = 192;
+const unsigned char box_up_right_corner     = 191;
+const unsigned char box_lower_right_corner  = 217;
+
+// Get box character for wall, based on surrounding walls and player FOV
+unsigned char get_wall_char(const P& p, const Map& map)
+{
+    // Info on adjacent (seen) walls
+    bool inf[3][3] = {};
+
+    // The wall we are trying to decide character for is in the center of the info array
+    const P info_center_p(1, 1);
+
+    // Populate the info array
+    for (const P& d : dir_utils::cardinal_list)
+    {
+        const P map_adj_p(p + d);
+
+        if (map::is_pos_inside_map(map_adj_p, true))
+        {
+            // TODO: Consider FOV
+
+            const P info_p(info_center_p + d);
+
+            const Ter& adj_t = map.ter[map_adj_p.x][map_adj_p.y];
+
+            inf[info_p.x][info_p.y] = adj_t.id == TerId::wall;
+        }
+    }
+
+    const bool u = inf[1][0];
+    const bool d = inf[1][2];
+    const bool l = inf[0][1];
+    const bool r = inf[2][1];
+
+    if ( u &&  d && !l && !r) return box_ver;
+    if ( u &&  d &&  l && !r) return box_ver_left;
+    if ( u &&  d && !l &&  r) return box_ver_right;
+
+    if (!u && !d &&  l &&  r) return box_hor;
+    if ( u && !d &&  l &&  r) return box_hor_up;
+    if (!u &&  d &&  l &&  r) return box_hor_down;
+
+    if ( u &&  d &&  l &&  r) return box_hor_ver;
+
+    if (!u &&  d && !l &&  r) return box_up_left_corner;
+    if ( u && !d && !l &&  r) return box_lower_left_corner;
+    if (!u &&  d &&  l && !r) return box_up_right_corner;
+    if ( u && !d &&  l && !r) return box_lower_right_corner;
+
+    return box_hor_ver;
+}
+
+} // namespace
+
 void vp_update(const P& p,
                const P& map_window_dim,
                const int trigger_dist,
@@ -61,34 +131,32 @@ void draw_map(const Map& map, const R& vp)
     {
         for (int y = vp.p0.y; y <= vp.p1.y; ++y)
         {
-            const P scr_p = P(x, y) - vp.p0;
+            const P p(x, y);
 
-            char ch     = 0;
-            Clr fg      = clr_white;
-            Clr bg      = clr_black;
+            const P     scr_p   = p - vp.p0;
+            const Ter&  t       = map.ter[x][y];
+            char        c       = 0;
 
-            const Ter ter = map.ter[x][y];
+            const RenderData& d = t.render_d;
 
-            // TODO: This should not be decided here
-            switch (ter)
+            if (t.id == TerId::wall)
             {
-            case Ter::floor:
-                ch = '.';
-                fg = clr_white;
-                bg = clr_black;
-                break;
-
-            case Ter::wall:
-                ch = '#';
-                fg = clr_white;
-                bg = clr_black;
-                break;
+                // Special case, draw walls as box sides
+                c = get_wall_char(p, map);
+            }
+            else // Not wall
+            {
+                c   = d.c;
             }
 
-            io::draw_char(scr_p,
-                          ch,
-                          fg,
-                          bg);
+            if (c)
+            {
+                // A character has been set
+                io::draw_char(scr_p,
+                              c,
+                              d.clr,
+                              clr_black);
+            }
         }
     }
 

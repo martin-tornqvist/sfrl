@@ -3,6 +3,7 @@
 #include "map.hpp"
 #include "mon.hpp"
 #include "render.hpp"
+#include "ter.hpp"
 
 #if defined(_WIN32) && defined(SDL_MODE)
 #undef main
@@ -20,11 +21,11 @@ int main(int argc, char* argv[])
     {
         for (int y = 1; y < map_h - 1; ++y)
         {
-            map.ter[x][y] = Ter::floor;
+            ter_factory::mk_on_map(TerId::floor, P(x, y), map);
         }
     }
 
-    map.ter[18][3] = Ter::wall;
+    ter_factory::mk_on_map(TerId::door_closed, P(4, 4), map);
 
     {
         Mon player = Mon(P(2, 4));
@@ -76,39 +77,39 @@ int main(int argc, char* argv[])
         }
         else if (inp.c == '1')
         {
-            map.monsters[0].mv(Dir::down_left);
+            map.monsters[0].mv(Dir::down_left, map);
         }
         else if (inp.c == '2' || inp.keycode == key_down)
         {
-            map.monsters[0].mv(Dir::down);
+            map.monsters[0].mv(Dir::down, map);
         }
         else if (inp.c == '3')
         {
-            map.monsters[0].mv(Dir::down_right);
+            map.monsters[0].mv(Dir::down_right, map);
         }
         else if (inp.c == '4' || inp.keycode == key_left)
         {
-            map.monsters[0].mv(Dir::left);
+            map.monsters[0].mv(Dir::left, map);
         }
         else if (inp.c == '5' || inp.c == ',')
         {
-            map.monsters[0].mv(Dir::center);
+            map.monsters[0].mv(Dir::center, map);
         }
         else if (inp.c == '6' || inp.keycode == key_right)
         {
-            map.monsters[0].mv(Dir::right);
+            map.monsters[0].mv(Dir::right, map);
         }
         else if (inp.c == '7')
         {
-            map.monsters[0].mv(Dir::up_left);
+            map.monsters[0].mv(Dir::up_left, map);
         }
         else if (inp.c == '8' || inp.keycode == key_up)
         {
-            map.monsters[0].mv(Dir::up);
+            map.monsters[0].mv(Dir::up, map);
         }
         else if (inp.c == '9')
         {
-            map.monsters[0].mv(Dir::up_right);
+            map.monsters[0].mv(Dir::up_right, map);
         }
 
         // If screen has been resized, trigger a viewport update next iteration

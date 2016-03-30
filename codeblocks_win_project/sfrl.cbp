@@ -113,6 +113,7 @@
 		<Unit filename="../include/mon.hpp" />
 		<Unit filename="../include/render.hpp" />
 		<Unit filename="../include/sdl/io.hpp" />
+		<Unit filename="../include/ter.hpp" />
 		<Unit filename="../rl_utils/include/mersenne_twister.hpp" />
 		<Unit filename="../rl_utils/include/rl_utils.hpp" />
 		<Unit filename="../rl_utils/src/rl_utils.cpp" />
@@ -121,6 +122,7 @@
 		<Unit filename="../src/mon.cpp" />
 		<Unit filename="../src/render.cpp" />
 		<Unit filename="../src/sdl/io.cpp" />
+		<Unit filename="../src/ter.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />
