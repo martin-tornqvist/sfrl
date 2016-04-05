@@ -15,23 +15,24 @@ int main(int argc, char* argv[])
 
     io::init();
 
+    ter::init();
+
     Map map;
 
     for (int x = 1; x < map_w - 1; ++x)
     {
         for (int y = 1; y < map_h - 1; ++y)
         {
-            ter_factory::mk_on_map(TerId::floor, P(x, y), map);
+            map.ter[x][y] = ter::mk(TerId::floor, P(x, y));
         }
     }
 
-    ter_factory::mk_on_map(TerId::door_closed, P(4, 4), map);
+    map.ter[4][4] = ter::mk(TerId::door, P(4, 4));
 
-    {
-        Mon player = Mon(P(2, 4));
+    map.ter[4][6] = ter::mk(TerId::force_field, P(4, 6));
 
-        map.monsters.push_back(player);
-    }
+    // Player monster
+    map.monsters.emplace_back(P(2, 4));
 
     R vp;
 
@@ -110,6 +111,14 @@ int main(int argc, char* argv[])
         else if (inp.c == '9')
         {
             map.monsters[0].mv(Dir::up_right, map);
+        }
+
+        for (int x = 0; x < map_w; ++x)
+        {
+            for (int y = 0; y < map_h; ++y)
+            {
+                map.ter[x][y]->on_new_turn();
+            }
         }
 
         // If screen has been resized, trigger a viewport update next iteration

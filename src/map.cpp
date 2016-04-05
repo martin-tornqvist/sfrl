@@ -1,12 +1,13 @@
 #include "map.hpp"
 
-Map::Map()
+Map::Map() :
+    monsters()
 {
     for (int x = 0; x < map_w; ++x)
     {
         for (int y = 0; y < map_h; ++y)
         {
-            ter_factory::mk_on_map(TerId::wall, P(x, y), *this);
+            ter[x][y] = ter::mk(TerId::wall, P(x, y));
         }
     }
 }

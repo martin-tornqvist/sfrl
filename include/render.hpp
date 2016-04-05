@@ -10,11 +10,18 @@ class Map;
 struct RenderData
 {
     RenderData() :
-        c   (0),
-        clr (clr_white) {}
+        c               (0),
+        clr             (clr_white),
+        draw_as_wall    (false) {}
+
+    RenderData(unsigned char c, Clr clr) :
+        c               (c),
+        clr             (clr),
+        draw_as_wall    (false) {}
 
     unsigned char c;
     Clr clr;
+    bool draw_as_wall; // Dynamic "box" drawing
 };
 
 namespace render

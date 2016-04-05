@@ -45,9 +45,11 @@ unsigned char get_wall_char(const P& p, const Map& map)
 
             const P info_p(info_center_p + d);
 
-            const Ter& adj_t = map.ter[map_adj_p.x][map_adj_p.y];
+            const Ter* adj_t = map.ter[map_adj_p.x][map_adj_p.y].get();
 
-            inf[info_p.x][info_p.y] = adj_t.id == TerId::wall;
+            const RenderData d = adj_t->render_d();
+
+            inf[info_p.x][info_p.y] = d.draw_as_wall;
         }
     }
 
@@ -133,18 +135,18 @@ void draw_map(const Map& map, const R& vp)
         {
             const P p(x, y);
 
-            const P     scr_p   = p - vp.p0;
-            const Ter&  t       = map.ter[x][y];
-            char        c       = 0;
+            const P             scr_p   = p - vp.p0;
+            const Ter* const    t       = map.ter[x][y].get();
+            char                c       = 0;
 
-            const RenderData& d = t.render_d;
+            const RenderData d = t->render_d();
 
-            if (t.id == TerId::wall)
+            if (d.draw_as_wall)
             {
                 // Special case, draw walls as box sides
                 c = get_wall_char(p, map);
             }
-            else // Not wall
+            else // Do not draw as wall
             {
                 c   = d.c;
             }

@@ -2,6 +2,7 @@
 #define MAP_HPP
 
 #include <vector>
+#include <memory>
 
 #include "mon.hpp"
 #include "ter.hpp"
@@ -14,7 +15,10 @@ class Map
 public:
     Map();
 
-    Ter ter[map_w][map_h];
+    Map(const Map&) = delete;
+    Map& operator=(const Map&) = delete;
+
+    std::unique_ptr<Ter> ter[map_w][map_h];
     std::vector<Mon> monsters;
 };
 
