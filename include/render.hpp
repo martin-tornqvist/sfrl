@@ -5,7 +5,6 @@
 
 class P;
 class R;
-class Map;
 
 struct RenderData
 {
@@ -32,7 +31,7 @@ void vp_update(const P& p,
                const int trigger_dist,
                R& vp);
 
-void draw_map(const Map& map, const R& vp);
+void draw_map(const R& vp);
 
 } // render
 

@@ -46,7 +46,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-pg -lgmon" />
-					<Add library="..\test\UnitTest++\bin\libUnitTest++.a" />
+					<Add library="../test/UnitTest++/bin/libUnitTest++.a" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c xcopy /y &quot;$(PROJECT_DIR)..\libs\SDL2-2.0.4-i686-w64-mingw32\bin\SDL2.dll&quot; &quot;$(PROJECT_DIR)..\test\bin\&quot;' />
@@ -110,20 +110,28 @@
 			<Add option="-lmingw32 -lSDL2main -lSDL2 -lSDL2_image" />
 			<Add directory="../libs/SDL2-2.0.4-i686-w64-mingw32/lib" />
 		</Linker>
+		<Unit filename="../include/ai.hpp" />
+		<Unit filename="../include/att.hpp" />
 		<Unit filename="../include/map.hpp" />
 		<Unit filename="../include/mon.hpp" />
 		<Unit filename="../include/render.hpp" />
 		<Unit filename="../include/sdl/io.hpp" />
 		<Unit filename="../include/ter.hpp" />
+		<Unit filename="../include/ter_trait.hpp" />
+		<Unit filename="../include/time.hpp" />
 		<Unit filename="../rl_utils/include/mersenne_twister.hpp" />
 		<Unit filename="../rl_utils/include/rl_utils.hpp" />
 		<Unit filename="../rl_utils/src/rl_utils.cpp" />
+		<Unit filename="../src/ai.cpp" />
+		<Unit filename="../src/att.cpp" />
 		<Unit filename="../src/main.cpp" />
 		<Unit filename="../src/map.cpp" />
 		<Unit filename="../src/mon.cpp" />
 		<Unit filename="../src/render.cpp" />
 		<Unit filename="../src/sdl/io.cpp" />
 		<Unit filename="../src/ter.cpp" />
+		<Unit filename="../src/ter_trait.cpp" />
+		<Unit filename="../src/time.cpp" />
 		<Extensions>
 			<code_completion />
 			<debugger />

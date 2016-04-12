@@ -26,7 +26,7 @@ const unsigned char box_up_right_corner     = 191;
 const unsigned char box_lower_right_corner  = 217;
 
 // Get box character for wall, based on surrounding walls and player FOV
-unsigned char get_wall_char(const P& p, const Map& map)
+unsigned char get_wall_char(const P& p)
 {
     // Info on adjacent (seen) walls
     bool inf[3][3] = {};
@@ -45,7 +45,7 @@ unsigned char get_wall_char(const P& p, const Map& map)
 
             const P info_p(info_center_p + d);
 
-            const Ter* adj_t = map.ter[map_adj_p.x][map_adj_p.y].get();
+            const Ter* adj_t = map::ter[map_adj_p.x][map_adj_p.y].get();
 
             const RenderData d = adj_t->render_d();
 
@@ -127,7 +127,7 @@ void vp_update(const P& p,
     ASSERT(vp.p1.y < map_h);
 }
 
-void draw_map(const Map& map, const R& vp)
+void draw_map(const R& vp)
 {
     for (int x = vp.p0.x; x <= vp.p1.x; ++x)
     {
@@ -136,7 +136,7 @@ void draw_map(const Map& map, const R& vp)
             const P p(x, y);
 
             const P             scr_p   = p - vp.p0;
-            const Ter* const    t       = map.ter[x][y].get();
+            const Ter* const    t       = map::ter[x][y].get();
             char                c       = 0;
 
             const RenderData d = t->render_d();
@@ -144,7 +144,7 @@ void draw_map(const Map& map, const R& vp)
             if (d.draw_as_wall)
             {
                 // Special case, draw walls as box sides
-                c = get_wall_char(p, map);
+                c = get_wall_char(p);
             }
             else // Do not draw as wall
             {
@@ -162,16 +162,27 @@ void draw_map(const Map& map, const R& vp)
         }
     }
 
-    // TODO: Iterate over all monsters
     // TODO: Only draw monsters inside vp
 
-    const P& mon_p      = map.monsters[0].p();
-    const P mon_scr_p   = mon_p - vp.p0;
+    for (auto& mon : map::monsters)
+    {
+        if (mon->is_allive())
+        {
+            const P& mon_p = mon->p();
 
-    io::draw_char(mon_scr_p,
-                  '@',
-                  clr_white,
-                  clr_black);
+            if (vp.is_p_inside(mon_p))
+            {
+                const P mon_scr_p   = mon_p - vp.p0;
+
+                const RenderData d = mon->render_d();
+
+                io::draw_char(mon_scr_p,
+                              d.c,
+                              d.clr,
+                              clr_black);
+            }
+        }
+    }
 
     io::update_scr();
 }
