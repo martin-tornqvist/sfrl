@@ -66,6 +66,8 @@ public:
 
     int speed() const;
 
+    bool is_player() const;
+
     void act();
 
     void mv(const Dir dir);

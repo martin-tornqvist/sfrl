@@ -3,6 +3,7 @@
 #include "io.hpp"
 #include "mon.hpp"
 #include "map.hpp"
+#include "game.hpp"
 
 void PlayerMonCtl::act()
 {
@@ -10,11 +11,12 @@ void PlayerMonCtl::act()
     {
         Input inp = io::get_input();
 
-        /* if (inp.c == 'q')
+        if (inp.c == 'q')
         {
-            break;
+            game::quit = true;
+            return;
         }
-        else */ if (inp.c == '1')
+        else if (inp.c == '1')
         {
             mon_->mv(Dir::down_left);
         }

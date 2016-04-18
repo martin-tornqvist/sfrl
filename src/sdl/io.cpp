@@ -2,6 +2,8 @@
 
 #include <SDL_image.h>
 
+#include "config.hpp"
+
 namespace io
 {
 
@@ -11,7 +13,7 @@ namespace
 // TODO: Load some of this stuff from a Lua script or something
 
 const std::string font_dir          = "font";
-const std::string font_name         = "terminal10x16.png";
+const std::string font_name         = "terminal10x16.png"; //"terminal10x16.png";
 const std::string font_path         = font_dir + "/" + font_name;
 
 const std::string window_title      = "SF RL v0.0.1";
@@ -26,8 +28,8 @@ const int       cell_w              = 10;
 const int       cell_h              = 16;
 const int       font_img_x_cells    = 16;
 const int       font_img_y_cells    = 16;
-const size_t    pixel_data_w        = font_img_x_cells* cell_w;
-const size_t    pixel_data_h        = font_img_y_cells* cell_h;
+const size_t    pixel_data_w        = font_img_x_cells * cell_w;
+const size_t    pixel_data_h        = font_img_y_cells * cell_h;
 
 const int       screen_bpp          = 32;
 
@@ -124,26 +126,9 @@ void put_px(const SDL_Surface& srf,
     }
 }
 
-void draw_rectangle_solid(const P& px_pos,
-                          const P& px_dims,
-                          const Clr& clr)
-{
-    SDL_Rect sdl_rect =
-    {
-        (Sint16)px_pos.x,
-        (Sint16)px_pos.y,
-        (Uint16)px_dims.x,
-        (Uint16)px_dims.y
-    };
-
-    SDL_FillRect(scr_srf_,
-                 &sdl_rect,
-                 SDL_MapRGB(scr_srf_->format, clr.r, clr.g, clr.b));
-}
-
 void load_font()
 {
-//    TRACE_FUNC_BEGIN;
+    TRACE_FUNC_BEGIN;
 
     SDL_Surface* font_srf_tmp = IMG_Load(font_path.c_str());
 
@@ -161,7 +146,7 @@ void load_font()
 
     SDL_FreeSurface(font_srf_tmp);
 
-//    TRACE_FUNC_END;
+    TRACE_FUNC_END;
 }
 
 void put_pixels_on_scr(const bool px_data[pixel_data_w][pixel_data_h],
@@ -205,6 +190,23 @@ P font_sheet_pos(const unsigned char c)
     return P(x, y);
 }
 
+void draw_rectangle_solid(const P& px_pos,
+                          const P& px_dims,
+                          const Clr& clr)
+{
+    SDL_Rect sdl_rect =
+    {
+        (Sint16)px_pos.x,
+        (Sint16)px_pos.y,
+        (Uint16)px_dims.x,
+        (Uint16)px_dims.y
+    };
+
+    SDL_FillRect(scr_srf_,
+                 &sdl_rect,
+                 SDL_MapRGB(scr_srf_->format, clr.r, clr.g, clr.b));
+}
+
 void put_char_pixels_on_scr(const char c,
                             const P& scr_px_pos,
                             const Clr& clr)
@@ -219,16 +221,8 @@ void put_char_pixels_on_scr(const char c,
 
 void draw_char_at_px(const char c,
                      const P& px_pos,
-                     const Clr& clr,
-                     const Clr& bg_clr = clr_black)
+                     const Clr& clr)
 {
-//    if (DRAW_BG_CLR)
-//    {
-    draw_rectangle_solid(px_pos,
-                         P(cell_w, cell_h),
-                         bg_clr);
-//    }
-
     put_char_pixels_on_scr(c,
                            px_pos,
                            clr);
@@ -276,17 +270,17 @@ void init()
         ASSERT(false);
     }
 
-//    TRACE << "Setting up rendering window" << std::endl;
+    TRACE << "Setting up rendering window" << std::endl;
 
-    const int scr_px_w = 80 * cell_w; //config::scr_px_w();
-    const int scr_px_h = 40 * cell_h; //config::scr_px_h();
+    const int scr_px_w = scr_default_w * cell_w; //config::scr_px_w();
+    const int scr_px_h = scr_default_h * cell_h; //config::scr_px_h();
 
 //    if (config::is_fullscreen())
 //    {
-//        sdl_window_ = SDL_CreateWindow(title.c_str(),
+//        sdl_window_ = SDL_CreateWindow(window_title.c_str(),
 //                                       SDL_WINDOWPOS_UNDEFINED,
 //                                       SDL_WINDOWPOS_UNDEFINED,
-//                                       SCR_PX_W, SCR_PX_H,
+//                                       scr_px_w, scr_px_h,
 //                                       SDL_WINDOW_FULLSCREEN_DESKTOP);
 //    }
 //
@@ -301,7 +295,7 @@ void init()
 
     if (!sdl_window_)
     {
-//        TRACE << "Failed to create window" << std::endl;
+        TRACE << "Failed to create window" << std::endl;
         ASSERT(false);
     }
 
@@ -311,7 +305,7 @@ void init()
 
     if (!sdl_renderer_)
     {
-//        TRACE << "Failed to create SDL renderer" << std::endl;
+        TRACE << "Failed to create SDL renderer" << std::endl;
         ASSERT(false);
     }
 
@@ -326,7 +320,7 @@ void init()
 
     if (!scr_srf_)
     {
-//        TRACE << "Failed to create screen surface" << std::endl;
+        TRACE << "Failed to create screen surface" << std::endl;
         ASSERT(false);
     }
 
@@ -338,7 +332,7 @@ void init()
 
     if (!scr_texture_)
     {
-//        TRACE << "Failed to create screen texture" << std::endl;
+        TRACE << "Failed to create screen texture" << std::endl;
         ASSERT(false);
     }
 
@@ -404,6 +398,26 @@ void clear_scr()
                  SDL_MapRGB(scr_srf_->format, 0, 0, 0));
 }
 
+void clear_area(const P& p0, const P& dims)
+{
+    const P cell_px_dim(cell_w, cell_h);
+
+    const P px_p0   (p0     * cell_px_dim);
+    const P px_dim  (dims   * cell_px_dim);
+
+    draw_rectangle_solid(px_p0, px_dim, clr_black);
+}
+
+void clear_area(const R& r)
+{
+    const P cell_px_dim(cell_w, cell_h);
+
+    const P px_p0   (r.p0               * cell_px_dim);
+    const P px_dim  ((r.p1 - r.p0 + 1)  * cell_px_dim);
+
+    draw_rectangle_solid(px_p0, px_dim, clr_black);
+}
+
 P scr_dim()
 {
     const P px_dim(scr_px_dim());
@@ -418,14 +432,27 @@ void draw_char(const P& p,
 {
     const P px_pos(p * P(cell_w, cell_h));
 
-    draw_char_at_px(c, px_pos, fg, bg);
+    draw_rectangle_solid(px_pos,
+                         P(cell_w, cell_h),
+                         bg);
+
+    draw_char_at_px(c, px_pos, fg);
 }
 
-void draw_text(const P& p,
+void draw_text(P p,
                const std::string& str,
                const Clr fg,
-               const Clr bg)
+               const Clr bg,
+               const Align align)
 {
+    const size_t msg_w = str.size();
+
+    // Adjust the x position if right aligned
+    if (align == Align::right)
+    {
+        p.x -= (msg_w - 1);
+    }
+
     const P cell_px_dim(cell_w, cell_h);
 
     P px_pos(p * cell_px_dim);
@@ -437,8 +464,7 @@ void draw_text(const P& p,
         return;
     }
 
-    const size_t    msg_w       = str.size();
-    const int       msg_px_w    = msg_w * cell_w;
+    const int msg_px_w = msg_w * cell_w;
 
     draw_rectangle_solid(px_pos,
                          P(msg_px_w, cell_h),
@@ -650,6 +676,22 @@ Input get_input()
     SDL_StopTextInput();
 
     return inp;
+}
+
+void wait_for_proceed()
+{
+    while (true)
+    {
+        const Input d = get_input();
+
+        if (
+            d.keycode == SDLK_SPACE     ||
+            d.keycode == SDLK_ESCAPE    ||
+            d.keycode == SDLK_RETURN)
+        {
+            break;
+        }
+    }
 }
 
 } // io

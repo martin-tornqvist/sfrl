@@ -26,12 +26,9 @@ struct RenderData
 namespace render
 {
 
-void vp_update(const P& p,
-               const P& map_window_dim,
-               const int trigger_dist,
-               R& vp);
+void init();
 
-void draw_map(const R& vp);
+void draw_map_state();
 
 } // render
 

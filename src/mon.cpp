@@ -4,6 +4,7 @@
 #include "map.hpp"
 #include "att.hpp"
 #include "ai.hpp"
+#include "msg.hpp"
 
 namespace mon
 {
@@ -25,7 +26,7 @@ void init()
         // Humanoid mutant
         MonData& d = data[(size_t)MonId::mutant_humanoid];
         d.render_d = RenderData('P', clr_white);
-        d.speed = 50;
+        d.speed = 80;
     }
 }
 
@@ -78,18 +79,22 @@ int Mon::speed() const
     return data_.speed;
 }
 
+bool Mon::is_player() const
+{
+    return this == map::player;
+}
+
 void Mon::act()
 {
     const bool has_controller = (bool)ctl_;
 
     ASSERT(has_controller);
 
-    if (!has_controller)
+    if (!is_allive() || !has_controller)
     {
         return;
     }
 
-    // TODO: Only call this if monster is alive
     ctl_->act();
 }
 
@@ -139,4 +144,7 @@ void Mon::mv(const Dir dir)
 void Mon::die()
 {
     state_ = MonState::dead;
+
+    msg::add("The dumbass dies.");
+    msg::add("Welcome to level 999!");
 }

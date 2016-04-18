@@ -2,6 +2,7 @@
 
 #include "ter.hpp"
 #include "mon.hpp"
+#include "msg.hpp"
 
 namespace ter
 {
@@ -40,6 +41,8 @@ bool Openable::try_open(Mon* const mon)
             trigger->on_open();
         }
 
+        msg::add("The thing opens.");
+
         is_open_ = true;
 
         if (mon)
@@ -59,6 +62,8 @@ bool Openable::try_close(Mon* const mon)
     {
         return false;
     }
+
+    msg::add("The thing closes.");
 
     is_open_ = false;
 

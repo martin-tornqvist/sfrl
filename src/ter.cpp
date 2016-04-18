@@ -23,7 +23,7 @@ void init()
     {
         // Wall
         TerData& d = data[(size_t)TerId::wall];
-        d.render_d.clr = clr_orange;
+        d.render_d.clr = clr_blue;
         d.render_d.draw_as_wall = true;
         d.blocks = true;
     }

@@ -4,6 +4,7 @@
 #include "io.hpp"
 #include "map.hpp"
 #include "render.hpp"
+#include "msg.hpp"
 
 namespace time
 {
@@ -11,21 +12,19 @@ namespace time
 namespace
 {
 
-const int ticks_per_turn_ = 20;
+const int ticks_per_turn = 20;
 
-int tick_nr_;
+int tick_nr;
 
 } // namepsace
 
 int turn()
 {
-    return tick_nr_ / ticks_per_turn_;
+    return tick_nr / ticks_per_turn;
 }
 
 void tick()
 {
-    ++tick_nr_;
-
     const bool has_monsters = !map::monsters.empty();
 
     ASSERT(has_monsters);
@@ -35,8 +34,7 @@ void tick()
         return;
     }
 
-
-    // TODO: Prune dead monsters from the vector sometimes (e.g. 100th tick or so)
+    // TODO: Prune dead monsters from the vector sometimes (e.g. every 100th tick or so)
 
 
     // NOTE: We must take into account that elements may be pushed back on the
@@ -48,26 +46,33 @@ void tick()
 
         if (mon->is_allive())
         {
+            --mon->ticks_delay_;
+
             mon->has_acted_this_tick_ = false;
 
             if (mon->ticks_delay_ <= 0)
             {
+                if (mon->is_player())
+                {
+                    // Draw the map prior to the players turn
+                    render::draw_map_state();
+
+                    // Clear the messages
+                    msg::clear();
+                }
+
                 mon->act();
 
                 // Set delay until next action
                 const int speed = mon->speed();
 
-                mon->ticks_delay_ = ticks_per_turn_ * 100 / speed;
-            }
-            else // Monster cannot yet act
-            {
-                --mon->ticks_delay_;
+                mon->ticks_delay_ = (ticks_per_turn * 100) / speed;
             }
         }
     }
 
     // This is a new turn
-    if (tick_nr_ % ticks_per_turn_ == 0)
+    if (tick_nr % ticks_per_turn == 0)
     {
         // Notify terrain of new turn event
         for (int x = 0; x < map_w; ++x)
@@ -78,6 +83,8 @@ void tick()
             }
         }
     }
+
+    ++tick_nr;
 }
 
 } // time

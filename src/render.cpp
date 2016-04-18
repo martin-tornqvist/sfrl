@@ -2,12 +2,17 @@
 
 #include "rl_utils.hpp"
 #include "map.hpp"
+#include "config.hpp"
+#include "time.hpp"
+#include "msg.hpp"
 
 namespace render
 {
 
 namespace
 {
+
+R vp;
 
 // ASCII codes for box characters
 const unsigned char box_ver                 = 179;
@@ -76,8 +81,6 @@ unsigned char get_wall_char(const P& p)
     return box_hor_ver;
 }
 
-} // namespace
-
 void vp_update(const P& p,
                const P& map_window_dim,
                const int trigger_dist,
@@ -127,15 +130,70 @@ void vp_update(const P& p,
     ASSERT(vp.p1.y < map_h);
 }
 
-void draw_map(const R& vp)
+} // namespace
+
+void init()
 {
+    vp = R();
+}
+
+void draw_map_state()
+{
+    P scr_dim(io::scr_dim());
+
+    // TODO:
+    // Check if game window is big enough
+//    if (scr_dim.x < 80 || scr_dim.y < 22)
+//    {
+//        // Too small! Just print a warning
+//        io::clear_scr();
+//
+//        io::draw_text(P(0, 0),
+//                      "Game window too small",
+//                      clr_yellow);
+//    }
+//    else // Window is big enough
+//    {
+
+    // Draw the current message (if any)
+    msg::draw();
+
+    // TODO: Move this stuff to a separate function...
+    // Turn number
+    io::draw_text(P(0, inf_area_y0 + 3),
+                  "TURN",
+                  clr_gray);
+
+    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
+                  to_str(time::turn()),
+                  clr_cyan_lgt,
+                  clr_black,
+                  Align::right);
+
+    // Update the viewport
+    P map_window_dim(scr_dim.x - inf_area_w, scr_dim.y - map_area_y0);
+
+    map_window_dim.x = std::min(map_window_dim.x, map_w);
+    map_window_dim.y = std::min(map_window_dim.y, map_h);
+
+    const int vp_trigger_dist = 3;
+
+    ASSERT(map::player);
+
+    render::vp_update(map::player->p(),
+                      map_window_dim,
+                      vp_trigger_dist,
+                      vp);
+
+    const P scr_offset(P(map_area_x0, map_area_y0) - vp.p0);
+
     for (int x = vp.p0.x; x <= vp.p1.x; ++x)
     {
         for (int y = vp.p0.y; y <= vp.p1.y; ++y)
         {
             const P p(x, y);
 
-            const P             scr_p   = p - vp.p0;
+            const P             scr_p   = p + scr_offset;
             const Ter* const    t       = map::ter[x][y].get();
             char                c       = 0;
 
@@ -172,7 +230,7 @@ void draw_map(const R& vp)
 
             if (vp.is_p_inside(mon_p))
             {
-                const P mon_scr_p   = mon_p - vp.p0;
+                const P mon_scr_p   = mon_p + scr_offset;
 
                 const RenderData d = mon->render_d();
 
@@ -183,6 +241,7 @@ void draw_map(const R& vp)
             }
         }
     }
+//    }
 
     io::update_scr();
 }

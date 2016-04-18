@@ -84,6 +84,12 @@ struct Input
     int  keycode;
 };
 
+enum class Align
+{
+    left,
+    right
+};
+
 namespace io
 {
 
@@ -95,6 +101,9 @@ void update_scr();
 
 void clear_scr();
 
+void clear_area(const P& p0, const P& dims);
+void clear_area(const R& r);
+
 P scr_dim();
 
 void draw_char(const P& p,
@@ -102,12 +111,15 @@ void draw_char(const P& p,
                const Clr fg,
                const Clr bg = clr_black);
 
-void draw_text(const P& p,
+void draw_text(P p,
                const std::string& str,
                const Clr fg,
-               const Clr bg = clr_black);
+               const Clr bg = clr_black,
+               const Align align = Align::left);
 
 Input get_input();
+
+void wait_for_proceed();
 
 } // io
 

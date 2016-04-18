@@ -112,8 +112,11 @@
 		</Linker>
 		<Unit filename="../include/ai.hpp" />
 		<Unit filename="../include/att.hpp" />
+		<Unit filename="../include/config.hpp" />
+		<Unit filename="../include/game.hpp" />
 		<Unit filename="../include/map.hpp" />
 		<Unit filename="../include/mon.hpp" />
+		<Unit filename="../include/msg.hpp" />
 		<Unit filename="../include/render.hpp" />
 		<Unit filename="../include/sdl/io.hpp" />
 		<Unit filename="../include/ter.hpp" />
@@ -124,9 +127,11 @@
 		<Unit filename="../rl_utils/src/rl_utils.cpp" />
 		<Unit filename="../src/ai.cpp" />
 		<Unit filename="../src/att.cpp" />
+		<Unit filename="../src/game.cpp" />
 		<Unit filename="../src/main.cpp" />
 		<Unit filename="../src/map.cpp" />
 		<Unit filename="../src/mon.cpp" />
+		<Unit filename="../src/msg.cpp" />
 		<Unit filename="../src/render.cpp" />
 		<Unit filename="../src/sdl/io.cpp" />
 		<Unit filename="../src/ter.cpp" />
