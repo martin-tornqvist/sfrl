@@ -4,6 +4,7 @@
 #include "time.hpp"
 #include "msg.hpp"
 #include "map.hpp"
+#include "mapgen.hpp"
 
 namespace game
 {
@@ -24,21 +25,36 @@ void run_session()
 {
     init();
 
-    for (int x = 1; x < map_w - 1; ++x)
+    mapgen::run();
+
+    // Make a player monster in a random free cell
     {
-        for (int y = 1; y < map_h - 1; ++y)
+        BoolMap blocked_cells;
+
+        for (int x = 0; x < map_w; ++x)
         {
-            map::ter[x][y] = ter::mk(TerId::floor, P(x, y));
+            for (int y = 0; y < map_h; ++y)
+            {
+                const bool blocks = map::ter[x][y]->blocks();
+
+                blocked_cells.set(P(x, y), blocks);
+            }
         }
-    }
 
-    map::ter[4][4] = ter::mk(TerId::door, P(4, 4));
+        for (const auto& mon : map::monsters)
+        {
+            blocked_cells.set(mon->p(), true);
+        }
 
-    map::ter[4][6] = ter::mk(TerId::force_field, P(4, 6));
+        std::vector<P> free_cells_vec;
 
-    // Make a player monster
-    {
-        std::unique_ptr<Mon> player = mon::mk(MonId::player, P(2, 4));
+        blocked_cells.cells_with_value(false, free_cells_vec);
+
+        ASSERT(!free_cells_vec.empty());
+
+        const P& player_pos = rnd::element(free_cells_vec);
+
+        std::unique_ptr<Mon> player = mon::mk(MonId::player, player_pos);
 
         map::player = player.get();
 
@@ -48,8 +64,8 @@ void run_session()
     msg::add("Welcome to the game, idiot!");
 
     // Make a monster
-    map::monsters.emplace_back(
-        mon::mk(MonId::mutant_humanoid, P(12, 6)));
+//    map::monsters.emplace_back(
+//        mon::mk(MonId::mutant_humanoid, P(12, 6)));
 
     while (!quit)
     {

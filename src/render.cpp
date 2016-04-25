@@ -158,17 +158,46 @@ void draw_map_state()
     // Draw the current message (if any)
     msg::draw();
 
+    // Draw info area
     // TODO: Move this stuff to a separate function...
-    // Turn number
+
+    // Clear this area
+    io::clear_area(R(0,
+                     inf_area_y0,
+                     inf_area_w - 1,
+                     scr_dim.y - inf_area_y0 - 1));
+
+    // Player coordinate
+
     io::draw_text(P(0, inf_area_y0 + 3),
-                  "TURN",
+                  "POS",
                   clr_gray);
 
-    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
-                  to_str(time::turn()),
+    const P player_p(map::player->p());
+
+    io::draw_text(P(inf_area_w - 6, inf_area_y0 + 3),
+                  to_str(player_p.x),
                   clr_cyan_lgt,
                   clr_black,
                   Align::right);
+
+    io::draw_text(P(inf_area_w - 5, inf_area_y0 + 3),
+                  ",",
+                  clr_gray,
+                  clr_black,
+                  Align::right);
+
+    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
+                  to_str(player_p.y),
+                  clr_cyan_lgt,
+                  clr_black,
+                  Align::right);
+
+//    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 4),
+//                  to_str(player_p.y),
+//                  clr_cyan_lgt,
+//                  clr_black,
+//                  Align::right);
 
     // Update the viewport
     P map_window_dim(scr_dim.x - inf_area_w, scr_dim.y - map_area_y0);
@@ -215,7 +244,7 @@ void draw_map_state()
                 io::draw_char(scr_p,
                               c,
                               d.clr,
-                              clr_black);
+                              d.bg_clr);
             }
         }
     }
@@ -230,14 +259,13 @@ void draw_map_state()
 
             if (vp.is_p_inside(mon_p))
             {
-                const P mon_scr_p   = mon_p + scr_offset;
-
-                const RenderData d = mon->render_d();
+                const P             mon_scr_p   = mon_p + scr_offset;
+                const RenderData    d           = mon->render_d();
 
                 io::draw_char(mon_scr_p,
                               d.c,
                               d.clr,
-                              clr_black);
+                              d.bg_clr);
             }
         }
     }

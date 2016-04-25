@@ -115,6 +115,7 @@
 		<Unit filename="../include/config.hpp" />
 		<Unit filename="../include/game.hpp" />
 		<Unit filename="../include/map.hpp" />
+		<Unit filename="../include/mapgen.hpp" />
 		<Unit filename="../include/mon.hpp" />
 		<Unit filename="../include/msg.hpp" />
 		<Unit filename="../include/render.hpp" />
@@ -130,6 +131,7 @@
 		<Unit filename="../src/game.cpp" />
 		<Unit filename="../src/main.cpp" />
 		<Unit filename="../src/map.cpp" />
+		<Unit filename="../src/mapgen.cpp" />
 		<Unit filename="../src/mon.cpp" />
 		<Unit filename="../src/msg.cpp" />
 		<Unit filename="../src/render.cpp" />

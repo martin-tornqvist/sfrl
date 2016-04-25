@@ -1,5 +1,17 @@
 #include "map.hpp"
 
+#include "rl_utils.hpp"
+
+void BoolMap::cells_with_value(const bool value, std::vector<P>& out)
+{
+
+    to_vec((bool*)data,
+           value,
+           map_w,
+           map_h,
+           out);
+}
+
 namespace map
 {
 
@@ -23,7 +35,7 @@ void clear_terrain()
     {
         for (int y = 0; y < map_h; ++y)
         {
-            ter[x][y] = ter::mk(TerId::wall, P(x, y));
+            ter[x][y] = ter::mk(TerId::rock_wall, P(x, y));
         }
     }
 }

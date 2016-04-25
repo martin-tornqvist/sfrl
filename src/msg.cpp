@@ -2,6 +2,7 @@
 
 #include "io.hpp"
 #include "render.hpp"
+#include "config.hpp"
 
 namespace msg
 {
@@ -25,7 +26,7 @@ void draw()
 
     // Clear this area
     const P scr_dim = io::scr_dim();
-    io::clear_area(R(0, 0, scr_dim.x, 1));
+    io::clear_area(R(0, 0, scr_dim.x, msg_area_h));
 
     // Draw message
     if (nr_msgs >= 1)

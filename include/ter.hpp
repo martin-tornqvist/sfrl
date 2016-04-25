@@ -13,6 +13,7 @@ enum class TerId
 {
     floor,
     wall,
+    rock_wall,
     door,
     force_field,
     end

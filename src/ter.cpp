@@ -23,8 +23,15 @@ void init()
     {
         // Wall
         TerData& d = data[(size_t)TerId::wall];
-        d.render_d.clr = clr_blue;
-        d.render_d.draw_as_wall = true;
+        d.render_d = RenderData('#', clr_blue);
+//        d.render_d.clr = clr_blue;
+//        d.render_d.draw_as_wall = true;
+        d.blocks = true;
+    }
+    {
+        // Rock wall
+        TerData& d = data[(size_t)TerId::rock_wall];
+        d.render_d = RenderData(178 /* Full rectangle */, clr_white);
         d.blocks = true;
     }
     {
@@ -72,6 +79,7 @@ std::unique_ptr<Ter> mk(TerId id, const P& p)
     break;
 
     default:
+        // No trait configuration needed
         break;
     }
 

@@ -10,6 +10,18 @@
 const int map_w = 256;
 const int map_h = 256;
 
+struct BoolMap
+{
+    bool data[map_w][map_h];
+
+    void set(const P& p, const bool value)
+    {
+        data[p.x][p.y] = value;
+    }
+
+    void cells_with_value(const bool value, std::vector<P>& out);
+};
+
 namespace map
 {
 

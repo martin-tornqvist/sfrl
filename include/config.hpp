@@ -5,7 +5,7 @@ const int msg_area_min_w        = 100;
 const int msg_area_default_w    = msg_area_min_w;
 const int msg_area_h            = 1;
 
-const int inf_area_y0           = 1;
+const int inf_area_y0           = msg_area_h;
 const int inf_area_w            = 12;
 const int inf_area_min_h        = 21;
 const int inf_area_default_h    = 40;
