@@ -29,6 +29,13 @@ void init();
 
 void draw_map_state();
 
+void update_vp(const P& p);
+
+void draw_char_on_map(const P& p,
+                      const char c,
+                      const Clr fg,
+                      const Clr bg = clr_black);
+
 } // render
 
 #endif // RENDER_HPP

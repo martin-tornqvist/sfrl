@@ -228,23 +228,6 @@ void draw_char_at_px(const char c,
                            clr);
 }
 
-void sleep(const Uint32 duration)
-{
-    if (duration == 1)
-    {
-        SDL_Delay(duration);
-    }
-    else // Duration > 1
-    {
-        const Uint32 wait_until = SDL_GetTicks() + duration;
-
-        while (SDL_GetTicks() < wait_until)
-        {
-            SDL_PumpEvents();
-        }
-    }
-}
-
 void clear_events()
 {
     while (SDL_PollEvent(&sdl_event_)) {}
@@ -495,6 +478,23 @@ void draw_text(P p,
         }
 
         px_pos.x += cell_w;
+    }
+}
+
+void sleep(const unsigned int ms)
+{
+    if (ms == 1)
+    {
+        SDL_Delay(ms);
+    }
+    else // Duration > 1
+    {
+        const Uint32 wait_until = SDL_GetTicks() + ms;
+
+        while (SDL_GetTicks() < wait_until)
+        {
+            SDL_PumpEvents();
+        }
     }
 }
 

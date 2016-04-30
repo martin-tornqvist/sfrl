@@ -14,6 +14,8 @@ namespace
 
 R vp;
 
+const int vp_trigger_dist = 3;
+
 // ASCII codes for box characters
 const unsigned char box_ver                 = 179;
 const unsigned char box_ver_left            = 180;
@@ -81,55 +83,6 @@ unsigned char get_wall_char(const P& p)
     return box_hor_ver;
 }
 
-void vp_update(const P& p,
-               const P& map_window_dim,
-               const int trigger_dist,
-               R& vp)
-{
-    // map_window_dim must not be bigger than the map
-    ASSERT(map_window_dim.x <= map_w);
-    ASSERT(map_window_dim.y <= map_h);
-
-    // Our distances from the viewport edges (right, left, down, up)
-    const int r = vp.p1.x - p.x;
-    const int l = p.x - vp.p0.x;
-    const int d = vp.p1.y - p.y;
-    const int u = p.y - vp.p0.y;
-
-    // Time to do horizontal adjustment?
-    if (r <= trigger_dist || l <= trigger_dist)
-    {
-        // NOTE: If window width is even (i.e. no center cell), we lean left
-        vp.p0.x = p.x - (map_window_dim.x / 2);
-
-        vp.p0.x = std::max(vp.p0.x, 0);
-        vp.p0.x = std::min(vp.p0.x, map_w - map_window_dim.x);
-    }
-
-    // Time to do vertical adjustment?
-    if (d <= trigger_dist || u <= trigger_dist)
-    {
-        // NOTE: If window height is even (i.e. no center cell), we lean up
-        vp.p0.y = p.y - (map_window_dim.y / 2);
-
-        vp.p0.y = std::max(vp.p0.y, 0);
-        vp.p0.y = std::min(vp.p0.y, map_h - map_window_dim.y);
-    }
-
-    vp.p1.x = vp.p0.x + map_window_dim.x - 1;
-    vp.p1.y = vp.p0.y + map_window_dim.y - 1;
-
-    // The viewport should have the same size as the map window
-    ASSERT((vp.p1.x - vp.p0.x + 1) == map_window_dim.x);
-    ASSERT((vp.p1.y - vp.p0.y + 1) == map_window_dim.y);
-
-    // The viewport should be inside the map
-    ASSERT(vp.p0.x >= 0);
-    ASSERT(vp.p0.y >= 0);
-    ASSERT(vp.p1.x < map_w);
-    ASSERT(vp.p1.y < map_h);
-}
-
 } // namespace
 
 void init()
@@ -152,8 +105,6 @@ void draw_map_state()
 //                      "Game window too small",
 //                      clr_yellow);
 //    }
-//    else // Window is big enough
-//    {
 
     // Draw the current message (if any)
     msg::draw();
@@ -173,46 +124,31 @@ void draw_map_state()
                   "POS",
                   clr_gray);
 
-    const P player_p(map::player->p());
+    if (map::player)
+    {
+        const P player_p(map::player->p());
 
-    io::draw_text(P(inf_area_w - 6, inf_area_y0 + 3),
-                  to_str(player_p.x),
-                  clr_cyan_lgt,
-                  clr_black,
-                  Align::right);
+        io::draw_text(P(inf_area_w - 6, inf_area_y0 + 3),
+                      to_str(player_p.x),
+                      clr_white,
+                      clr_black,
+                      Align::right);
 
-    io::draw_text(P(inf_area_w - 5, inf_area_y0 + 3),
-                  ",",
-                  clr_gray,
-                  clr_black,
-                  Align::right);
+        io::draw_text(P(inf_area_w - 5, inf_area_y0 + 3),
+                      ",",
+                      clr_gray,
+                      clr_black,
+                      Align::right);
 
-    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
-                  to_str(player_p.y),
-                  clr_cyan_lgt,
-                  clr_black,
-                  Align::right);
+        io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
+                      to_str(player_p.y),
+                      clr_white,
+                      clr_black,
+                      Align::right);
 
-//    io::draw_text(P(inf_area_w - 2, inf_area_y0 + 4),
-//                  to_str(player_p.y),
-//                  clr_cyan_lgt,
-//                  clr_black,
-//                  Align::right);
-
-    // Update the viewport
-    P map_window_dim(scr_dim.x - inf_area_w, scr_dim.y - map_area_y0);
-
-    map_window_dim.x = std::min(map_window_dim.x, map_w);
-    map_window_dim.y = std::min(map_window_dim.y, map_h);
-
-    const int vp_trigger_dist = 3;
-
-    ASSERT(map::player);
-
-    render::vp_update(map::player->p(),
-                      map_window_dim,
-                      vp_trigger_dist,
-                      vp);
+        // Update viewport to show the player
+        render::update_vp(map::player->p());
+    }
 
     const P scr_offset(P(map_area_x0, map_area_y0) - vp.p0);
 
@@ -222,9 +158,9 @@ void draw_map_state()
         {
             const P p(x, y);
 
-            const P             scr_p   = p + scr_offset;
-            const Ter* const    t       = map::ter[x][y].get();
-            char                c       = 0;
+            const P scr_p(p + scr_offset);
+            const Ter* const t = map::ter[x][y].get();
+            char c = 0;
 
             const RenderData d = t->render_d();
 
@@ -259,8 +195,8 @@ void draw_map_state()
 
             if (vp.is_p_inside(mon_p))
             {
-                const P             mon_scr_p   = mon_p + scr_offset;
-                const RenderData    d           = mon->render_d();
+                const P mon_scr_p(mon_p + scr_offset);
+                const RenderData d = mon->render_d();
 
                 io::draw_char(mon_scr_p,
                               d.c,
@@ -269,9 +205,79 @@ void draw_map_state()
             }
         }
     }
-//    }
 
     io::update_scr();
+}
+
+void draw_char_on_map(const P& p,
+                      const char c,
+                      const Clr fg,
+                      const Clr bg)
+{
+    const P scr_offset(P(map_area_x0, map_area_y0) - vp.p0);
+
+    if (vp.is_p_inside(p))
+    {
+        const P scr_p(p + scr_offset);
+
+        io::draw_char(scr_p,
+                      c,
+                      fg,
+                      bg);
+    }
+}
+
+void update_vp(const P& p)
+{
+    P scr_dim(io::scr_dim());
+
+    P map_window_dim(scr_dim.x - inf_area_w, scr_dim.y - map_area_y0);
+
+    map_window_dim.x = std::min(map_window_dim.x, map_w);
+    map_window_dim.y = std::min(map_window_dim.y, map_h);
+
+    // map_window_dim must not be bigger than the map
+    ASSERT(map_window_dim.x <= map_w);
+    ASSERT(map_window_dim.y <= map_h);
+
+    // Our distances from the viewport edges (right, left, down, up)
+    const int r = vp.p1.x - p.x;
+    const int l = p.x - vp.p0.x;
+    const int d = vp.p1.y - p.y;
+    const int u = p.y - vp.p0.y;
+
+    // Time to do horizontal adjustment?
+    if (r <= vp_trigger_dist || l <= vp_trigger_dist)
+    {
+        // NOTE: If window width is even (i.e. no center cell), we lean left
+        vp.p0.x = p.x - (map_window_dim.x / 2);
+
+        vp.p0.x = std::max(vp.p0.x, 0);
+        vp.p0.x = std::min(vp.p0.x, map_w - map_window_dim.x);
+    }
+
+    // Time to do vertical adjustment?
+    if (d <= vp_trigger_dist || u <= vp_trigger_dist)
+    {
+        // NOTE: If window height is even (i.e. no center cell), we lean up
+        vp.p0.y = p.y - (map_window_dim.y / 2);
+
+        vp.p0.y = std::max(vp.p0.y, 0);
+        vp.p0.y = std::min(vp.p0.y, map_h - map_window_dim.y);
+    }
+
+    vp.p1.x = vp.p0.x + map_window_dim.x - 1;
+    vp.p1.y = vp.p0.y + map_window_dim.y - 1;
+
+    // The viewport should have the same size as the map window
+    ASSERT((vp.p1.x - vp.p0.x + 1) == map_window_dim.x);
+    ASSERT((vp.p1.y - vp.p0.y + 1) == map_window_dim.y);
+
+    // The viewport should be inside the map
+    ASSERT(vp.p0.x >= 0);
+    ASSERT(vp.p0.y >= 0);
+    ASSERT(vp.p1.x < map_w);
+    ASSERT(vp.p1.y < map_h);
 }
 
 } // render
@@ -294,7 +300,7 @@ void draw_map_state()
 //         let vp_before = vp;
 
 //         // Verify that viewport does *NOT* change when focus is in center
-//         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
+//         update_vp(&p, &map_window_dim, trigger_dist, &mut vp);
 
 //         ASSERT(vp == vp_before);
 
@@ -303,7 +309,7 @@ void draw_map_state()
 //         vp = vp_before;
 //         p.x = 96;
 
-//         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
+//         update_vp(&p, &map_window_dim, trigger_dist, &mut vp);
 
 //         ASSERT(vp == vp_before);
 
@@ -311,7 +317,7 @@ void draw_map_state()
 //         vp = vp_before;
 //         p.x = 97;
 
-//         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
+//         update_vp(&p, &map_window_dim, trigger_dist, &mut vp);
 
 //         ASSERT(vp != vp_before);
 
@@ -319,7 +325,7 @@ void draw_map_state()
 //         vp = vp_before;
 //         p.x = 98;
 
-//         vp_update(&p, &map_window_dim, trigger_dist, &mut vp);
+//         update_vp(&p, &map_window_dim, trigger_dist, &mut vp);
 
 //         ASSERT(vp != vp_before);
 //     }

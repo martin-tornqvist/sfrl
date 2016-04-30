@@ -117,6 +117,8 @@ void draw_text(P p,
                const Clr bg = clr_black,
                const Align align = Align::left);
 
+void sleep(const unsigned int ms);
+
 Input get_input();
 
 void wait_for_proceed();

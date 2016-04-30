@@ -12,36 +12,51 @@ enum class Axis
     ver
 };
 
-class BTree
-{
-public:
-    BTree(const R& r = R()) :
-        area_   (r),
-        child1_ (nullptr),
-        child2_ (nullptr) {}
-
-    ~BTree() {}
-
-    // Splits this node along the given axis, and creates two sub trees
-    // (which are then leaf nodes).
-    // The "len" parameter is the resulting width or height (depending on axis)
-    // of the first child. The second child gets the remaining total length.
-    void split(const Axis axis, const int len);
-
-    // Area of the game map that this node covers
-    R area_;
-
-    // NOTE: The child trees should always either:
-    // * BOTH be null, or
-    // * BOTH point to their own existing trees
-    std::unique_ptr<BTree> child1_;
-    std::unique_ptr<BTree> child2_;
-};
-
 namespace mapgen
 {
 
 void run();
+
+struct AreaSource
+{
+    AreaSource(const P& p = P(), Dir dir = Dir::center) :
+        p   (p),
+        dir (dir) {}
+
+    P p;
+    Dir dir;
+};
+
+class MapArea
+{
+public:
+    MapArea() :
+        r_() {}
+
+    virtual ~MapArea() {}
+
+    virtual bool build(const AreaSource& source) = 0;
+
+    R r_;
+};
+
+class Room : public MapArea
+{
+public:
+    Room() :
+        MapArea() {}
+
+    bool build(const AreaSource& source);
+};
+
+class Corridor : public MapArea
+{
+public:
+    Corridor() :
+        MapArea() {}
+
+    bool build(const AreaSource& source);
+};
 
 } // namespace
 

@@ -17,14 +17,13 @@ void init()
     {
         // Floor
         TerData& d = data[(size_t)TerId::floor];
-        d.render_d = RenderData('.', clr_green);
+        d.render_d = RenderData('.', clr_gray_drk);
         d.blocks = false;
     }
     {
         // Wall
         TerData& d = data[(size_t)TerId::wall];
-        d.render_d = RenderData('#', clr_blue);
-//        d.render_d.clr = clr_blue;
+        d.render_d = RenderData('#', clr_brown_gray);
 //        d.render_d.draw_as_wall = true;
         d.blocks = true;
     }
