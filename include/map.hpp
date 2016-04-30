@@ -7,8 +7,8 @@
 #include "mon.hpp"
 #include "ter.hpp"
 
-const int map_w = 128;
-const int map_h = 128;
+const int map_w = 128; //128;
+const int map_h = 64; //128;
 
 const int map_mid_x = map_w / 2;
 const int map_mid_y = map_h / 2;
