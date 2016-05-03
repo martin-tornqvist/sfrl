@@ -498,6 +498,11 @@ void sleep(const unsigned int ms)
     }
 }
 
+void flush_input()
+{
+    SDL_PumpEvents();
+}
+
 Input get_input()
 {
     SDL_StartTextInput();

@@ -25,6 +25,9 @@ void run_session()
 {
     init();
 
+    io::clear_scr();
+    io::update_scr();
+
     mapgen::run();
 
     // Make a player monster in a random free cell

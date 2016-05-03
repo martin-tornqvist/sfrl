@@ -1,5 +1,8 @@
 #include "mapgen.hpp"
 
+#include <algorithm>
+#include <random>
+
 #include "map.hpp"
 #include "ter.hpp"
 
@@ -12,8 +15,9 @@ const unsigned int demo_step_ms = 200;
 #endif // DEMO_MODE
 
 // Specific demo options (only applicable if DEMO_MODE above is enabled)
-//#define DEMO_AREA_BUILD     1
-#define DEMO_CORRIDOR_TRIM  1
+//#define DEMO_AREA_BUILD 1
+//#define DEMO_TRIM_CORRIDORS 1
+//#define DEMO_CONNECT_AREAS_EXTRA 1
 
 namespace mapgen
 {
@@ -23,9 +27,84 @@ namespace
 
 const R map_r(0, 0, map_w - 1, map_h - 1);
 
+std::vector< std::unique_ptr<MapArea> > built_areas;
+
 // Array to track which cells are corridors, to be considered when trimming
 // dead-end corridors.
 bool corridor_map[map_w][map_h];
+
+void valid_area_sources(const MapArea& area, std::vector<AreaSource>& out)
+{
+    out.clear();
+
+    // In the "worst" case, every cell inside the wall will be added,
+    // reserve space for this
+    out.reserve(area.r_.w() * 2 +   // Top and bottom walls
+                area.r_.h() * 2);   // Left and right walls
+
+    const R& r = area.r_;
+
+    for (int x = r.p0.x; x <= r.p1.x; ++x)
+    {
+        for (int y = r.p0.y; y <= r.p1.y; ++y)
+        {
+            if (map::ter[x][y]->id() != TerId::floor)
+            {
+                // Cell is inside this area, but it's not floor - not a valid
+                // starting position to expand from
+                continue;
+            }
+
+            const P p(x, y);
+
+            bool pos_ok = true;
+
+            // Do not use the tried position if is adjacent to floor which is
+            // outside the map area
+            for (const P& d : dir_utils::dir_list)
+            {
+                const P check_p(p + d);
+
+                if (
+                    !area.r_.is_p_inside(check_p) &&
+                    map::ter[check_p.x][check_p.y]->id() != TerId::rock_wall)
+                {
+                    // Foreign floor encountered, this is not a good position!
+                    pos_ok = false;
+                    break;
+                }
+            }
+
+            if (!pos_ok)
+            {
+                continue;
+            }
+
+            // Alright, this is a valid starting position to expand from!
+            // Add relevant directions to the source bucket.
+
+            if (x == r.p0.x)
+            {
+                out.push_back(AreaSource(p, Dir::left));
+            }
+
+            if (x == r.p1.x)
+            {
+                out.push_back(AreaSource(p, Dir::right));
+            }
+
+            if (y == r.p0.y)
+            {
+                out.push_back(AreaSource(p, Dir::up));
+            }
+
+            if (y == r.p1.y)
+            {
+                out.push_back(AreaSource(p, Dir::down));
+            }
+        }
+    }
+}
 
 void build_areas()
 {
@@ -33,8 +112,7 @@ void build_areas()
 
     // TODO: Function for getting a random area type
 
-    // Successfully built areas
-    std::vector< std::unique_ptr<MapArea> > built_areas;
+    built_areas.clear();
 
     // Build first room
     {
@@ -52,46 +130,15 @@ void build_areas()
         built_areas.emplace_back(std::move(room));
     }
 
-    for (int i = 0; i < 20000; ++i)
+    for (int i = 0; i < 5000; ++i)
     {
         const size_t old_idx = rnd::idx(built_areas);
 
         const MapArea* const old = built_areas[old_idx].get();
 
-        const R old_r = old->r_;
-
         std::vector<AreaSource> source_bucket;
 
-        for (int x = old_r.p0.x; x <= old_r.p1.x; ++x)
-        {
-            for (int y = old_r.p0.y; y <= old_r.p1.y; ++y)
-            {
-                if (map::ter[x][y]->id() == TerId::floor)
-                {
-                    const P p(x, y);
-
-                    if (x == old_r.p0.x)
-                    {
-                        source_bucket.push_back(AreaSource(p, Dir::left));
-                    }
-
-                    if (x == old_r.p1.x)
-                    {
-                        source_bucket.push_back(AreaSource(p, Dir::right));
-                    }
-
-                    if (y == old_r.p0.y)
-                    {
-                        source_bucket.push_back(AreaSource(p, Dir::up));
-                    }
-
-                    if (y == old_r.p1.y)
-                    {
-                        source_bucket.push_back(AreaSource(p, Dir::down));
-                    }
-                }
-            }
-        }
+        valid_area_sources(*old, source_bucket);
 
         if (!source_bucket.empty())
         {
@@ -114,7 +161,7 @@ void build_areas()
             std::unique_ptr<MapArea> area(nullptr);
 
             // TODO: See TODO at top of function
-            if (rnd::percent(75))
+            if (rnd::percent(85))
             {
                 area.reset(new Room);
             }
@@ -172,7 +219,7 @@ void trim_corridors()
                     // Looks like a dead end, fill it with rock wall
                     map::ter[x][y] = ter::mk(TerId::rock_wall, p);
 
-#if defined DEMO_MODE && defined DEMO_CORRIDOR_TRIM
+#if defined DEMO_MODE && defined DEMO_TRIM_CORRIDORS
                     render::update_vp(p);
                     render::draw_char_on_map(p,
                                              'X',
@@ -181,7 +228,7 @@ void trim_corridors()
                     io::sleep(demo_step_ms / 2);
                     render::draw_map_state();
                     io::sleep(demo_step_ms / 2);
-#endif // DEMO_MODE and DEMO_CORRIDOR_TRIM
+#endif // DEMO_MODE and DEMO_TRIM_CORRIDORS
 
                     corridor_map[x][y] = false;
 
@@ -198,7 +245,103 @@ void trim_corridors()
     TRACE_FUNC_END;
 }
 
-void convert_to_constr_walls()
+void connect_areas_extra()
+{
+    TRACE_FUNC_BEGIN;
+
+    // Used by floodfill
+    int flood[map_w][map_h];
+    bool blocked[map_w][map_h];
+
+    for (int x = 0; x < map_w; ++x)
+    {
+        for (int y = 0; y < map_h; ++y)
+        {
+            blocked[x][y] = map::ter[x][y]->blocks();
+        }
+    }
+
+    std::vector<AreaSource> source_bucket;
+
+    for (auto& area : built_areas)
+    {
+        valid_area_sources(*area.get(), source_bucket);
+
+        if (source_bucket.empty())
+        {
+            continue;
+        }
+
+        for (const AreaSource& source : source_bucket)
+        {
+            const P d(dir_utils::offset(source.dir));
+
+            // One step out from the source position
+            const P wall_p(source.p + d);
+
+            // Sanity check: We ALWAYS expect that one step out from a
+            // valid source position, there is a wall cell
+            if (map::ter[wall_p.x][wall_p.y]->id() != TerId::rock_wall)
+            {
+                ASSERT(false);
+
+                // Release mode robustness
+                continue;
+            }
+
+            // One step further beyond the wall
+            const P beyond_wall_p(wall_p + d);
+
+            if (
+                map::is_pos_inside_map(beyond_wall_p, false) &&
+                map::ter[beyond_wall_p.x][beyond_wall_p.y]->id() == TerId::floor)
+            {
+                // Aha! There is another area next to our wall!
+
+                // With the current map, how many steps are there to the
+                // cell in the other area?
+
+                // Search at most this far:
+                const int travel_lmt = 20;
+
+                floodfill::run(source.p,
+                               (const bool*)blocked,
+                               (int*)flood,
+                               map_dims,
+                               travel_lmt,
+                               beyond_wall_p);
+
+                const int flood_val_beyond = flood[beyond_wall_p.x][beyond_wall_p.y];
+
+                // If it takes many steps to reach the other area
+                // even though they are adjacent, this is annoying.
+                // Connect the areas!
+
+                if (flood_val_beyond == 0)
+                {
+                    map::ter[wall_p.x][wall_p.y] = ter::mk(TerId::floor, wall_p);
+
+                    blocked[wall_p.x][wall_p.y] = false;
+
+#if defined DEMO_MODE && defined DEMO_CONNECT_AREAS_EXTRA
+                    render::update_vp(wall_p);
+                    render::draw_map_state();
+                    render::draw_char_on_map(wall_p, 'X', clr_green_lgt);
+                    io::update_scr();
+                    io::sleep(demo_step_ms * 2);
+
+                    render::draw_map_state();
+                    io::sleep(demo_step_ms * 2);
+#endif // DEMO_MODE and DEMO_CONNECT_AREAS_EXTRA
+                }
+            }
+        } // Source bucket loop
+    } // Map area loop
+
+    TRACE_FUNC_END;
+}
+
+void convert_walls()
 {
     TRACE_FUNC_BEGIN;
 
@@ -307,13 +450,17 @@ void run()
 
     trim_corridors();
 
-    convert_to_constr_walls();
+    connect_areas_extra();
+
+    convert_walls();
+
+    built_areas.clear();
 }
 
 bool Room::build(const AreaSource& source)
 {
     // TODO: Normal distribution
-    const P dims(rnd::range(3, 21),
+    const P dims(rnd::range(3, 18),
                  rnd::range(3, 12));
 
     const P p0_orig(source.p - (dims / 2));
@@ -346,7 +493,7 @@ bool Corridor::build(const AreaSource& source)
     const Axis axis = (source.dir == Dir::right || source.dir == Dir::left) ?
                       Axis::hor : Axis::ver;
 
-    const int len = rnd::range(5, 14);
+    const int len = rnd::range(5, 30);
 
     const P dims(axis == Axis::hor ? len    : 1,
                  axis == Axis::hor ? 1      : len);

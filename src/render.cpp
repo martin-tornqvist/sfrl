@@ -56,7 +56,7 @@ unsigned char get_wall_char(const P& p)
 
             const RenderData d = adj_t->render_d();
 
-            inf[info_p.x][info_p.y] = d.draw_as_wall;
+            inf[info_p.x][info_p.y] = d.draw_as_dynamic_wall;
         }
     }
 
@@ -164,7 +164,7 @@ void draw_map_state()
 
             const RenderData d = t->render_d();
 
-            if (d.draw_as_wall)
+            if (d.draw_as_dynamic_wall)
             {
                 // Special case, draw walls as box sides
                 c = get_wall_char(p);

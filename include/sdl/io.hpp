@@ -119,6 +119,11 @@ void draw_text(P p,
 
 void sleep(const unsigned int ms);
 
+// Useful to call when e.g. loading lots of resources or performing lots of
+// heavy calculations, so that the game doesn't appear totally busy, and the
+// window can still be moved etc.
+void flush_input();
+
 Input get_input();
 
 void wait_for_proceed();
