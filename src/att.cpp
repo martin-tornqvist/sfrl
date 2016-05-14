@@ -7,10 +7,9 @@ namespace att
 
 void melee(Mon& attacker, Mon& defender)
 {
-    if (rnd::one_in(3))
-    {
-        defender.die();
-    }
+    const int dmg = rnd::range(1, 4);
+
+    defender.take_dmg(dmg);
 }
 
 } // att

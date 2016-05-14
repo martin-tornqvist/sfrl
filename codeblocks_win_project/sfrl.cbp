@@ -113,6 +113,7 @@
 		<Unit filename="../include/ai.hpp" />
 		<Unit filename="../include/att.hpp" />
 		<Unit filename="../include/config.hpp" />
+		<Unit filename="../include/fov.hpp" />
 		<Unit filename="../include/game.hpp" />
 		<Unit filename="../include/map.hpp" />
 		<Unit filename="../include/mapgen.hpp" />
@@ -123,11 +124,14 @@
 		<Unit filename="../include/ter.hpp" />
 		<Unit filename="../include/ter_trait.hpp" />
 		<Unit filename="../include/time.hpp" />
+		<Unit filename="../rl_utils/include/bresenham.hpp" />
 		<Unit filename="../rl_utils/include/mersenne_twister.hpp" />
 		<Unit filename="../rl_utils/include/rl_utils.hpp" />
+		<Unit filename="../rl_utils/src/bresenham.cpp" />
 		<Unit filename="../rl_utils/src/rl_utils.cpp" />
 		<Unit filename="../src/ai.cpp" />
 		<Unit filename="../src/att.cpp" />
+		<Unit filename="../src/fov.cpp" />
 		<Unit filename="../src/game.cpp" />
 		<Unit filename="../src/main.cpp" />
 		<Unit filename="../src/map.cpp" />

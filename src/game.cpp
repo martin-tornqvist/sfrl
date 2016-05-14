@@ -64,7 +64,7 @@ void run_session()
         map::monsters.emplace_back(std::move(player));
     }
 
-    msg::add("Welcome to the game, idiot!");
+    msg::add("Welcome to the game.");
 
     // Make a monster
 //    map::monsters.emplace_back(

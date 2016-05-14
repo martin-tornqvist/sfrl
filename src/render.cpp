@@ -83,6 +83,67 @@ unsigned char get_wall_char(const P& p)
     return box_hor_ver;
 }
 
+void draw_inf(const P& scr_dim)
+{
+    // Clear this area
+    io::clear_area(R(0,
+                     inf_area_y0,
+                     inf_area_w - 1,
+                     scr_dim.y - inf_area_y0 - 1));
+
+    if (map::player)
+    {
+        P p(0, inf_area_y0 + 3);
+
+        io::draw_text(p,
+                      "LIFE",
+                      clr_gray);
+
+        const int life      = map::player->life();
+        const int life_max  = map::player->data_.life;
+
+        p.x = inf_area_w - 2;
+
+        io::draw_text(p,
+                      to_str(life) + "/" + to_str(life_max),
+                      clr_red_lgt,
+                      clr_black,
+                      Align::right);
+
+        p.set(0, p.y + 2);
+
+        io::draw_text(p,
+                      "POS",
+                      clr_gray);
+
+        const P player_p(map::player->p());
+
+        p.x = inf_area_w - 6;
+
+        io::draw_text(p,
+                      to_str(player_p.x),
+                      clr_white,
+                      clr_black,
+                      Align::right);
+
+        ++p.x;
+
+        io::draw_text(p,
+                      ",",
+                      clr_gray,
+                      clr_black,
+                      Align::right);
+
+        p.x += 3;
+
+        io::draw_text(p,
+                      to_str(player_p.y),
+                      clr_white,
+                      clr_black,
+                      Align::right);
+    }
+}
+
 } // namespace
 
 void init()
@@ -92,7 +153,7 @@ void init()
 
 void draw_map_state()
 {
-    P scr_dim(io::scr_dim());
+    const P scr_dim(io::scr_dim());
 
     // TODO:
     // Check if game window is big enough
@@ -109,43 +170,11 @@ void draw_map_state()
     // Draw the current message (if any)
     msg::draw();
 
-    // Draw info area
-    // TODO: Move this stuff to a separate function...
-
-    // Clear this area
-    io::clear_area(R(0,
-                     inf_area_y0,
-                     inf_area_w - 1,
-                     scr_dim.y - inf_area_y0 - 1));
-
-    // Player coordinate
-
-    io::draw_text(P(0, inf_area_y0 + 3),
-                  "POS",
-                  clr_gray);
+    // Draw info area (player status)
+    draw_inf(scr_dim);
 
     if (map::player)
     {
-        const P player_p(map::player->p());
-
-        io::draw_text(P(inf_area_w - 6, inf_area_y0 + 3),
-                      to_str(player_p.x),
-                      clr_white,
-                      clr_black,
-                      Align::right);
-
-        io::draw_text(P(inf_area_w - 5, inf_area_y0 + 3),
-                      ",",
-                      clr_gray,
-                      clr_black,
-                      Align::right);
-
-        io::draw_text(P(inf_area_w - 2, inf_area_y0 + 3),
-                      to_str(player_p.y),
-                      clr_white,
-                      clr_black,
-                      Align::right);
-
         // Update viewport to show the player
         render::update_vp(map::player->p());
     }
@@ -159,28 +188,54 @@ void draw_map_state()
             const P p(x, y);
 
             const P scr_p(p + scr_offset);
-            const Ter* const t = map::ter[x][y].get();
-            char c = 0;
 
-            const RenderData d = t->render_d();
-
-            if (d.draw_as_dynamic_wall)
+            if (map::player_explored[x][y])
             {
-                // Special case, draw walls as box sides
-                c = get_wall_char(p);
+                const Ter* const t = map::ter[x][y].get();
+                char c = 0;
+
+                const RenderData d = t->render_d();
+
+                if (d.draw_as_dynamic_wall)
+                {
+                    // Special case, draw walls as box sides
+                    c = get_wall_char(p);
+                }
+                else // Do not draw as wall
+                {
+                    c   = d.c;
+                }
+
+                if (c)
+                {
+                    // A character has been set
+
+                    Clr clr     = d.clr;
+                    Clr bg_clr  = d.bg_clr;
+
+                    if (!map::player_fov[x][y])
+                    {
+                        const int fg_denom = 6;
+                        const int bg_denom = 2;
+
+                        clr.r       /= fg_denom;
+                        clr.g       /= fg_denom;
+                        clr.b       /= fg_denom;
+
+                        bg_clr.r    /= bg_denom;
+                        bg_clr.g    /= bg_denom;
+                        bg_clr.b    /= bg_denom;
+                    }
+
+                    io::draw_char(scr_p,
+                                  c,
+                                  clr,
+                                  bg_clr);
+                }
             }
-            else // Do not draw as wall
+            else // Not explored
             {
-                c   = d.c;
-            }
-
-            if (c)
-            {
-                // A character has been set
-                io::draw_char(scr_p,
-                              c,
-                              d.clr,
-                              d.bg_clr);
+                io::clear_area(scr_p, P(1, 1));
             }
         }
     }

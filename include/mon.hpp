@@ -20,12 +20,17 @@ struct MonData
 {
     MonData() :
         render_d    (),
-        speed       () {}
+        speed       (0),
+        life        (0),
+        energy      (0) {}
 
     RenderData render_d;
 
     // Measured in percent (default is 100%)
     int speed;
+
+    int life;
+    int energy;
 };
 
 enum class MonState
@@ -64,13 +69,28 @@ public:
 
     RenderData render_d() const;
 
-    int speed() const;
+    int speed() const
+    {
+        return data_.speed;
+    }
+
+    int life()
+    {
+        return life_;
+    }
+
+    int energy()
+    {
+        return energy_;
+    }
 
     bool is_player() const;
 
     void act();
 
     void mv(const Dir dir);
+
+    void take_dmg(const int dmg);
 
     void die();
 
@@ -87,7 +107,11 @@ public:
 
 private:
     MonId id_;
+
     P p_;
+
+    int life_;
+    int energy_;
 };
 
 #endif // MON_HPP

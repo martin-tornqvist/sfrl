@@ -161,7 +161,7 @@ void build_areas()
             std::unique_ptr<MapArea> area(nullptr);
 
             // TODO: See TODO at top of function
-            if (rnd::percent(85))
+            if (rnd::percent(50))
             {
                 area.reset(new Room);
             }
@@ -493,7 +493,7 @@ bool Corridor::build(const AreaSource& source)
     const Axis axis = (source.dir == Dir::right || source.dir == Dir::left) ?
                       Axis::hor : Axis::ver;
 
-    const int len = rnd::range(5, 30);
+    const int len = rnd::range(8, 28);
 
     const P dims(axis == Axis::hor ? len    : 1,
                  axis == Axis::hor ? 1      : len);

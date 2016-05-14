@@ -5,6 +5,7 @@
 #include "map.hpp"
 #include "render.hpp"
 #include "msg.hpp"
+#include "fov.hpp"
 
 namespace time
 {
@@ -54,6 +55,9 @@ void tick()
             {
                 if (mon->is_player())
                 {
+                    // Update FOV and exploration
+                    fov::update_player_fov();
+
                     // Draw the map prior to the players turn
                     render::draw_map_state();
 

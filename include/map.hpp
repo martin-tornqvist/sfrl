@@ -32,8 +32,13 @@ struct BoolMap
 namespace map
 {
 
-extern std::unique_ptr<Ter>                 ter[map_w][map_h];  // Terrain
-extern std::vector< std::unique_ptr<Mon> >  monsters;           // Monsters
+extern std::unique_ptr<Ter> ter[map_w][map_h];
+
+extern std::vector< std::unique_ptr<Mon> > monsters;
+
+extern bool player_fov[map_w][map_h];
+
+extern bool player_explored[map_w][map_h];
 
 // NOTE: This serves two purposes:
 // 1) It is the definition of WHICH monster the player character is

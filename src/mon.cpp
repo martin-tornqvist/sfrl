@@ -21,12 +21,16 @@ void init()
         MonData& d = data[(size_t)MonId::player];
         d.render_d = RenderData('@', clr_white_high);
         d.speed = 100;
+        d.life = 8;
+        d.energy = 20;
     }
     {
         // Humanoid mutant
         MonData& d = data[(size_t)MonId::mutant_humanoid];
         d.render_d = RenderData('P', clr_white);
         d.speed = 80;
+        d.life = 8;
+        d.energy = 20;
     }
 }
 
@@ -67,16 +71,13 @@ Mon::Mon(MonData& data, MonId id, const P& p) :
     has_acted_this_tick_    (true),
     state_                  (MonState::alive),
     id_                     (id),
-    p_                      (p) {}
+    p_                      (p),
+    life_                   (data.life),
+    energy_                 (data.energy) {}
 
 RenderData Mon::render_d() const
 {
     return data_.render_d;
-}
-
-int Mon::speed() const
-{
-    return data_.speed;
 }
 
 bool Mon::is_player() const
@@ -141,10 +142,20 @@ void Mon::mv(const Dir dir)
     }
 }
 
+void Mon::take_dmg(const int dmg)
+{
+    life_ -= dmg;
+
+    if (life_ <= 0)
+    {
+        die();
+    }
+}
+
 void Mon::die()
 {
     state_ = MonState::dead;
 
-    msg::add("The dumbass dies.");
+    msg::add("The monster dies.");
     msg::add("Welcome to level 999!");
 }

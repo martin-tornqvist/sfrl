@@ -1,6 +1,7 @@
 #include "map.hpp"
 
 #include "rl_utils.hpp"
+#include "fov.hpp"
 
 void BoolMap::cells_with_value(const bool value, std::vector<P>& out)
 {
@@ -15,8 +16,13 @@ void BoolMap::cells_with_value(const bool value, std::vector<P>& out)
 namespace map
 {
 
-std::unique_ptr<Ter>                ter[map_w][map_h];
+std::unique_ptr<Ter> ter[map_w][map_h];
+
 std::vector< std::unique_ptr<Mon> > monsters;
+
+bool player_fov[map_w][map_h];
+
+bool player_explored [map_w][map_h];
 
 Mon* player = nullptr;
 
@@ -25,6 +31,8 @@ void init()
     player = nullptr;
 
     monsters.clear();
+
+    std::fill_n(*player_explored, nr_map_cells, false);
 
     clear_terrain();
 }
