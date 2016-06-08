@@ -5,7 +5,6 @@
 
 void BoolMap::cells_with_value(const bool value, std::vector<P>& out)
 {
-
     to_vec((bool*)data,
            value,
            map_w,

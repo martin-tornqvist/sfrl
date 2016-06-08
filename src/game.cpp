@@ -40,7 +40,7 @@ void run_session()
             {
                 const bool blocks = map::ter[x][y]->blocks();
 
-                blocked_cells.set(P(x, y), blocks);
+                blocked_cells.data[x][y] = blocks;
             }
         }
 

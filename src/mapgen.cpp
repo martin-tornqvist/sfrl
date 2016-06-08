@@ -440,22 +440,44 @@ bool allow_build_at(const R& r)
     return true;
 }
 
-} // namespace
-
-void run()
+void populate_mon()
 {
-    std::fill_n(*corridor_map, nr_map_cells, false);
+    BoolMap blocked;
 
-    build_areas();
+    for (int x = 0; x < map_w; ++x)
+    {
+        for (int y = 0; y < map_h; ++y)
+        {
+            blocked.data[x][y] = map::ter[x][y]->blocks();
+        }
+    }
 
-    trim_corridors();
+    for (const auto& mon : map::monsters)
+    {
+        const P& p = mon->p();
 
-    connect_areas_extra();
+        blocked.data[p.x][p.y] = true;
+    }
 
-    convert_walls();
+    std::vector<P> p_bucket;
 
-    built_areas.clear();
+    blocked.cells_with_value(false, p_bucket);
+
+    const size_t max_nr = 10;
+
+    for (size_t i = 0; i < max_nr; ++i)
+    {
+        const size_t idx = rnd::idx(p_bucket);
+
+        const P& p = p_bucket[idx];
+
+        map::monsters.emplace_back(mon::mk(MonId::mutant_humanoid, p));
+
+        p_bucket.erase(begin(p_bucket) + idx);
+    }
 }
+
+} // namespace
 
 bool Room::build(const AreaSource& source)
 {
@@ -529,6 +551,23 @@ bool Corridor::build(const AreaSource& source)
     }
 
     return false;
+}
+
+void run()
+{
+    std::fill_n(*corridor_map, nr_map_cells, false);
+
+    build_areas();
+
+    trim_corridors();
+
+    connect_areas_extra();
+
+    convert_walls();
+
+    built_areas.clear();
+
+    populate_mon();
 }
 
 } // namespace
